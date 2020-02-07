@@ -11,20 +11,22 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
+    public static Stage pStage, sStage;
     public static HomeController homeCon;
+    public static Scene homeScene;
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
-        FXMLLoader mainLoader = new FXMLLoader(getClass().getResource("../fxml/mainScreen.fxml"));
+    public void start(Stage pStage) throws Exception{
+        FXMLLoader mainLoader = new FXMLLoader(getClass().getResource("../fxml/mainHomeScreen.fxml"));
         Parent ml = mainLoader.load();
         homeCon = mainLoader.getController();
+        homeScene = new Scene(ml);
 
+        pStage.setTitle("Hello World");
+        pStage.setScene(homeScene);
+        pStage.show();
 
-
-        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 300, 275));
-        primaryStage.show();
+        sStage = new Stage();
     }
 
 
