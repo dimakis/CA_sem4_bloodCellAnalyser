@@ -27,7 +27,7 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="Open TriColor">
                     <items>
-                        <MenuItem fx:id="openRGB" mnemonicParsing="false" text="Open RGB Channels" />
+                        <MenuItem fx:id="openTricolor" mnemonicParsing="false" text="Open RGB Channels" />
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">
@@ -101,7 +101,7 @@
                   <ButtonBar layoutX="886.0" layoutY="395.0" prefHeight="40.0" prefWidth="200.0">
                     <buttons>
                       <Button mnemonicParsing="false" text="Button" />
-                        <Button layoutX="125.0" layoutY="17.0" mnemonicParsing="false" text="Button" />
+                        <Button fx:id="tricolorBtn" layoutX="125.0" layoutY="17.0" mnemonicParsing="false" text="Button" />
                     </buttons>
                   </ButtonBar>
                     </children>

@@ -32,11 +32,12 @@ public class HomeController implements Initializable {
     public MenuItem quit, openRGB;
     public Label metaData;
     public ImageView imageViewBlue;
+    public Button tricolorBtn;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        File file = new File("/home/dimdakis/IdeaProjects/CA_02.1/Assignment_2/src/Images/cantFindImageFinal.png");
+        File file = new File("/home/dimdakis/Pictures/bloodCellsAssignment1/bloodCells4.jpg");
         Image im = new Image(file.toURI().toString());
         imageView.setImage(im);
         imageViewEdited.setImage(im);
@@ -47,6 +48,7 @@ public class HomeController implements Initializable {
 //        setSepia();
         setGrayScale();
 //        setCancelChanges();
+        setTricolor();
         quit();
 //        setOpenRGB();
 
@@ -79,7 +81,7 @@ public class HomeController implements Initializable {
     }
 
     public void setTricolor() {
-        openTricolor.setOnAction(e -> {
+        tricolorBtn.setOnAction(e -> {
             Image im = imageViewEdited.getImage();
             //reading color from loaded image
             PixelReader pixelReader = im.getPixelReader();
@@ -91,18 +93,32 @@ public class HomeController implements Initializable {
 
             for (int y = 0; y < im.getHeight(); y++) {
                 for (int x = 0; x < im.getWidth(); x++) {
-//                    im.getPixelReader().
-                    //getting color from individual pixel
                     Color color = pixelReader.getColor(x, y);
-                    double r = color.getRed();
-                    double g = color.getGreen();
-                    double b = color.getBlue();
-//                    if (((r+g+b)/3) < 10 color.get
-//                            pixelWriter.setColor();
+                    double r = color.getRed() * 255;
+                    double g = color.getGreen() * 255;
+                    double b = color.getBlue() * 255;
+                    System.out.println("x= " + x + ", y = " + y + ", b: " + b + ", g: " + g + ", r: " + r);
+                    if (r > 160 && (r - b) > 25 && r > g && r > b) {
+                        r = 200;
+                        g = 10;
+                        b = 10;
+                    }
+                    if (b > 120 &&  b < 200 && b > g && b > r) {
+                        b = 230;
+                        r = 140;
+                        g = 75;
+                    }
+                    if ( b > 230 && g > 230 && r > 230) {
+                        b = r = g = 250;
+                    }
+                    Color c3 = Color.rgb((int) r, (int) g, (int) b);
+                    pixelWriter.setColor(x, y, c3);
                 }
             }
-        });
-    }
+            imageViewEdited.setImage(writableImage);
+    });
+}
+
 
     public void setGrayScale() {
         grayScaleBtn.setOnAction(e -> {
