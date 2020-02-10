@@ -80,6 +80,19 @@ public class HomeController implements Initializable {
         System.out.println(im.getUrl());
     }
 
+    public double[] setRed(double r, double b, double g) {
+        double[] colorArray = new double[3];
+        if (r > 160 && (r - b) > 25 && r > g && r > b) {
+            r = 200;
+            g = 10;
+            b = 10;
+            colorArray[0] = r;
+            colorArray[1] = g;
+            colorArray[2] = b;
+        }
+        return colorArray;
+    }
+
     public void setTricolor() {
         tricolorBtn.setOnAction(e -> {
             Image im = imageViewEdited.getImage();
@@ -90,7 +103,7 @@ public class HomeController implements Initializable {
             PixelWriter pixelWriter = writableImage.getPixelWriter();
             int[] whiteSpace = new int[(int) (im.getWidth() * (int) im.getHeight())];
 
-
+            double[] colorArray = new double[3];
             for (int y = 0; y < im.getHeight(); y++) {
                 for (int x = 0; x < im.getWidth(); x++) {
                     Color color = pixelReader.getColor(x, y);
@@ -98,17 +111,20 @@ public class HomeController implements Initializable {
                     double g = color.getGreen() * 255;
                     double b = color.getBlue() * 255;
                     System.out.println("x= " + x + ", y = " + y + ", b: " + b + ", g: " + g + ", r: " + r);
-                    if (r > 160 && (r - b) > 25 && r > g && r > b) {
-                        r = 200;
-                        g = 10;
-                        b = 10;
-                    }
-                    if (b > 120 &&  b < 200 && b > g && b > r) {
-                        b = 230;
+                    //red enhancement
+                    colorArray =setRed(r, g, b);
+                    r = colorArray[0];
+                    g = colorArray[1];
+                    b = colorArray[2];
+
+                //for purple enhancement
+                    if (b > 120 && b < 220 && b > g && b > r) {
+                        b = 200;
                         r = 140;
                         g = 75;
                     }
-                    if ( b > 230 && g > 230 && r > 230) {
+                    //white enhancement
+                    if (b > 230 && g > 230 && r > 230) {
                         b = r = g = 250;
                     }
                     Color c3 = Color.rgb((int) r, (int) g, (int) b);
@@ -116,8 +132,8 @@ public class HomeController implements Initializable {
                 }
             }
             imageViewEdited.setImage(writableImage);
-    });
-}
+        });
+    }
 
 
     public void setGrayScale() {
