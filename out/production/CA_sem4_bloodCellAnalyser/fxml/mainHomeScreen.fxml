@@ -69,10 +69,10 @@
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             </rowConstraints>
                             <children>
-                                <Slider fx:id="saturationSlider" layoutX="10.0" layoutY="6.0" majorTickUnit="0.25" max="1.0" showTickLabels="true" showTickMarks="true" GridPane.rowIndex="1" />
-                                <Slider fx:id="brightnessSlider" layoutX="10.0" layoutY="36.0" majorTickUnit="0.25" max="1.0" showTickLabels="true" showTickMarks="true" GridPane.rowIndex="2" />
-                                <Slider fx:id="contrastSlider" layoutX="10.0" layoutY="66.0" majorTickUnit="0.25" max="1.0" showTickLabels="true" showTickMarks="true" GridPane.rowIndex="3" />
-                                <Slider fx:id="sepiaSlider" layoutX="10.0" layoutY="96.0" majorTickUnit="0.25" max="1.0" showTickLabels="true" showTickMarks="true" GridPane.rowIndex="4" />
+                                <Slider fx:id="redSlider" layoutX="10.0" layoutY="6.0" majorTickUnit="0.25" max="1.0" showTickLabels="true" showTickMarks="true" GridPane.rowIndex="1" />
+                                <Slider fx:id="blueSlider" layoutX="10.0" layoutY="36.0" majorTickUnit="0.25" max="1.0" showTickLabels="true" showTickMarks="true" GridPane.rowIndex="2" />
+                                <Slider fx:id="greenSlider" layoutX="10.0" layoutY="66.0" majorTickUnit="0.25" max="1.0" showTickLabels="true" showTickMarks="true" GridPane.rowIndex="3" />
+                                <Slider fx:id="opacitySlider" layoutX="10.0" layoutY="96.0" majorTickUnit="0.25" max="1.0" showTickLabels="true" showTickMarks="true" GridPane.rowIndex="4" />
                             </children>
                         </GridPane>
                         <ImageView fx:id="imageViewEdited" fitHeight="337.5" fitWidth="600.0" layoutX="686.0" layoutY="30.0" pickOnBounds="true" preserveRatio="true" />
@@ -100,8 +100,8 @@
                   <Label fx:id="metaData" layoutX="231.0" layoutY="494.0" text="File MetaData" />
                   <ButtonBar layoutX="886.0" layoutY="395.0" prefHeight="40.0" prefWidth="200.0">
                     <buttons>
-                      <Button mnemonicParsing="false" text="Button" />
-                        <Button fx:id="tricolorBtn" layoutX="125.0" layoutY="17.0" mnemonicParsing="false" text="Button" />
+                      <Button fx:id="unionFindBtn" mnemonicParsing="false" text="Union Find" />
+                        <Button fx:id="tricolorBtn" layoutX="125.0" layoutY="17.0" mnemonicParsing="false" text="Tri-color Conversion" />
                     </buttons>
                   </ButtonBar>
                     </children>

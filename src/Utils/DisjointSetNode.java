@@ -12,6 +12,8 @@ public class DisjointSetNode<T> {
         this.height = height;
     }
 
+//    public static
+
     public DisjointSetNode<?> getParent() {
         return parent;
     }
