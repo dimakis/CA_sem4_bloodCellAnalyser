@@ -34,6 +34,7 @@ public class HomeController implements Initializable {
     public Button tricolorBtn;
     public Slider redSlider, blueSlider, greenSlider, opacitySlider;
     public Button unionFindBtn;
+    public Button noiseReductionBtn;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -43,6 +44,8 @@ public class HomeController implements Initializable {
         imageViewEdited.setImage(im);
         setOpenFinder();
         alterImageRedSlider();
+        unionFind();
+        decreaseNoise();
 //        setSaturation();
 //        setBrightness();
 //        setContrast();
@@ -108,17 +111,43 @@ public class HomeController implements Initializable {
     }
 
     public void unionFind() {
-        Image im = imageViewEdited.getImage();
-        //reading color from loaded image
-        PixelReader pixelReader = im.getPixelReader();
-        double[] pixelArray = new double[(int) (im.getWidth() * (int) im.getHeight())];
-        double pix = 1;
-        for (int y = 0; y < im.getHeight(); y++) {
-            for (int x = 0; x < im.getWidth(); x++) {
-//            pixelArray[pix];
-            //to get
+        unionFindBtn.setOnAction(e -> {
+            Image im = imageViewEdited.getImage();
+            //reading color from loaded image
+            PixelReader pixelReader = im.getPixelReader();
+            double[] pixelArray = new double[(int) (im.getWidth() * (int) im.getHeight())];
+            double pix = 1;
+            double pixValue = 0;
+
+            int arraySlot = 0;
+            Color pixCol;
+            for (int y = 0; y < im.getHeight(); y++) {
+                for (int x = 0; x < im.getWidth(); x++) {
+                    pixCol = pixelReader.getColor(x, y);
+                    if ((pixCol.getRed() * 255) == 250)
+                        pixelArray[arraySlot] = pixValue;
+                    else if ((pixCol.getRed() * 255) == 200) {
+                        pixValue = pix;
+                        pixelArray[arraySlot] = pixValue;
+                    }else
+                        pix
+                    arraySlot++;
+                    pix++;
+                    //to get
+
+                }
             }
-        }
+        });
+    }
+
+
+    public void decreaseNoise() {
+        noiseReductionBtn.setOnAction(e -> {
+            Image im = imageViewEdited.getImage();
+            System.out.println("im url: " + im.getUrl());
+            im = new Image(im.getUrl(), 144, 144, false, false);
+            imageViewEdited.setImage(im);
+        });
     }
 
 
@@ -140,11 +169,6 @@ public class HomeController implements Initializable {
                     double g = color.getGreen() * 255;
                     double b = color.getBlue() * 255;
 //                    System.out.println("x= " + x + ", y = " + y + ", b: " + b + ", g: " + g + ", r: " + r);
-//                    if (r > 80 && (r - b) > 25 && r > g && r > b) {
-//                        r = 200;
-//                        g = 10;
-//                        b = 10;
-//                    }
                     if (r > 80 && (r - b) > 15 && r > g && r > b) {
                         r = 200;
                         g = 10;
@@ -155,7 +179,7 @@ public class HomeController implements Initializable {
 //                        r = 140;
 //                        g = 75;
 //                    }
-                    if ( b < 80 && b > g && b > r) {
+                    if (b < 80 && b > g && b > r) {
                         b = 160;
                         r = 140;
                         g = 75;
@@ -188,8 +212,6 @@ public class HomeController implements Initializable {
                             double g = color.getGreen();
                             double b = color.getBlue();
                             int newColor = (int) ((r + g + b) / 3 * 255);
-//                            int green = (int) ((r + g + b) / 3 * 255);
-//                            int blue = (int) ((r + g + b) / 3 * 255);
                             Color color1 = Color.rgb(newColor, newColor, newColor); //green, blue);
                             pixelWriter.setColor(x, y, color1);
                         }
