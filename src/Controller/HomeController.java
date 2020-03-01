@@ -16,6 +16,7 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 import static Main.Main.pStage;
@@ -44,7 +45,7 @@ public class HomeController implements Initializable {
         imageViewEdited.setImage(im);
         setOpenFinder();
         alterImageRedSlider();
-        unionFind();
+//        unionFind();
         decreaseNoise();
 //        setSaturation();
 //        setBrightness();
@@ -110,37 +111,6 @@ public class HomeController implements Initializable {
         });
     }
 
-    public void unionFind() {
-        unionFindBtn.setOnAction(e -> {
-            Image im = imageViewEdited.getImage();
-            //reading color from loaded image
-            PixelReader pixelReader = im.getPixelReader();
-            double[] pixelArray = new double[(int) (im.getWidth() * (int) im.getHeight())];
-            double pix = 1;
-            double pixValue = 0;
-
-            int arraySlot = 0;
-            Color pixCol;
-            for (int y = 0; y < im.getHeight(); y++) {
-                for (int x = 0; x < im.getWidth(); x++) {
-                    pixCol = pixelReader.getColor(x, y);
-                    if ((pixCol.getRed() * 255) == 250)
-                        pixelArray[arraySlot] = pixValue;
-                    else if ((pixCol.getRed() * 255) == 200) {
-                        pixValue = pix;
-                        pixelArray[arraySlot] = pixValue;
-                    }else
-                        pix
-                    arraySlot++;
-                    pix++;
-                    //to get
-
-                }
-            }
-        });
-    }
-
-
     public void decreaseNoise() {
         noiseReductionBtn.setOnAction(e -> {
             Image im = imageViewEdited.getImage();
@@ -149,7 +119,38 @@ public class HomeController implements Initializable {
             imageViewEdited.setImage(im);
         });
     }
+//    public void unionFind() {
+//        unionFindBtn.setOnAction(e -> {
+//            Image im = imageViewEdited.getImage();
+//            //reading color from loaded image
+//            PixelReader pixelReader = im.getPixelReader();
+//            double[] pixelArray = new double[(int) (im.getWidth() * (int) im.getHeight())];
+//
+//            double redpix= 2;
+//
+//            int arraySlot = 0;
+//            Color pixCol;
+//            for (int y = 0; y < im.getHeight(); y++) {
+//                for (int x = 0; x < im.getWidth(); x++) {
+//                    pixCol = pixelReader.getColor(x, y);
+//                    if ((pixCol.getRed() * 255) == 250)
+//                        pixelArray[arraySlot] = whitePix;
+//                    else if ((pixCol.getRed() * 255) == 200) {
+//                        whitePix = pix;
+//                        pixelArray[arraySlot] = whitePix;
+//                    }else
+//                        pix
+//                    arraySlot++;
+//                    pix++;
+//                    //to get
+//
+//                }
+//            }
+//        });
+//    }
 
+    //for finding root
+//                        if (y = 0 && x > 0  &&  x < im.getWidth() && )
 
     public void setTricolor() {
         tricolorBtn.setOnAction(e -> {
@@ -159,8 +160,16 @@ public class HomeController implements Initializable {
             WritableImage writableImage = new WritableImage(
                     (int) im.getWidth(), (int) im.getHeight());
             PixelWriter pixelWriter = writableImage.getPixelWriter();
-            int[] array = new int[(int) (im.getWidth() * (int) im.getHeight())];
-
+            double pix = 1;
+            double whitePix = 0;
+            int[] pixelArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
+            int redPix = 0;
+            int whitePixel = 0;
+            int purplePixel = 0;
+            int arraySlot = 0;
+            int red = 4;
+            int purple = 7;
+            int white = 0;
 
             for (int y = 0; y < im.getHeight(); y++) {
                 for (int x = 0; x < im.getWidth(); x++) {
@@ -169,28 +178,45 @@ public class HomeController implements Initializable {
                     double g = color.getGreen() * 255;
                     double b = color.getBlue() * 255;
 //                    System.out.println("x= " + x + ", y = " + y + ", b: " + b + ", g: " + g + ", r: " + r);
-                    if (r > 80 && (r - b) > 15 && r > g && r > b) {
+                    //finding a red cell and making it bright red
+                    if (r > 80 && (r - b) > 10 && r > g && r > b) {
                         r = 200;
                         g = 10;
                         b = 10;
+                        redPix++;
+//                        pixelArray[arraySlot] = pix;
+                        pixelArray[arraySlot] = red;
+                        pix++;
                     }
-//  legit                   if (b > 80 && b < 200 && b > g && b > r) {
-//                        b = 160;
-//                        r = 140;
-//                        g = 75;
-//                    }
+                    //setting purple 'white blood cells' nuclei
                     if (b < 80 && b > g && b > r) {
                         b = 160;
                         r = 140;
                         g = 75;
+//                        pixelArray[arraySlot] = pix;
+                        pixelArray[arraySlot] = purple;
+                        pix++;
+                        purplePixel++;
                     }
+                    //setting white background pixels
                     if (b > 80 && g > 80 && r > 80) {
-                        b = r = g = 250;
+                        b = r = g = 255;
+//                        pixelArray[arraySlot] = whitePix;
+                        pixelArray[arraySlot] = white;
+                        whitePixel++;
                     }
                     Color c3 = Color.rgb((int) r, (int) g, (int) b);
                     pixelWriter.setColor(x, y, c3);
+                    arraySlot++;
+
                 }
             }
+            for (i var: pixelArray) {
+                System.out.println(var);
+                
+            }
+
+            System.out.println("White Pixel count: " + whitePixel + ", Red Pixel count: " + redPix + ", Purple pixel count : " + purplePixel + ",ArraySize: " + pixelArray.length);
             imageViewEdited.setImage(writableImage);
         });
     }
