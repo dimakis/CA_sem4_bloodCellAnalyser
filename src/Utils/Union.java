@@ -22,7 +22,8 @@ public class Union {
         // initial value of array must be -1.000001
     }
 
-    public static void quickUnion(int[] arr, int p, int q)  {
-        arr[findIntArr(arr,q)]=findIntArr(arr,p);
+    public static void quickUnion(int[] arr, int p, int q) {
+        arr[findIntArr(arr, q)] = findIntArr(arr, p);
+//        arr[q]=findIntArr(arr,p);   }
     }
 }

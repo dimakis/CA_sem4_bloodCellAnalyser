@@ -1,6 +1,7 @@
 package Controller;
 
 import Main.Main;
+import Utils.Find;
 import Utils.Union;
 import javafx.application.Platform;
 import javafx.fxml.Initializable;
@@ -17,8 +18,7 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static Main.Main.pStage;
 
@@ -34,9 +34,10 @@ public class HomeController implements Initializable {
     public Label metaData;
     public Button tricolorBtn;
     public Slider redSlider, blueSlider, greenSlider, opacitySlider;
-//    public double[] pixelArray;
-    public int[] pixelArray;
-
+//    public double[] redCellArray;
+    public int[] redCellArray, whiteCellArray;
+    public Pane ogImagePane,edImagePane;
+    public HashMap <String, LinkedList<Integer>> roots = new HashMap<>();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -121,87 +122,62 @@ public class HomeController implements Initializable {
             imageViewEdited.setImage(im);
         });
     }
-//    public void unionFind() {
-//        unionFindBtn.setOnAction(e -> {
-//            Image im = imageViewEdited.getImage();
-//            //reading color from loaded image
-//            PixelReader pixelReader = im.getPixelReader();
-//            double[] pixelArray = new double[(int) (im.getWidth() * (int) im.getHeight())];
-//
-//            double redpix= 2;
-//
-//            int arraySlot = 0;
-//            Color pixCol;
-//            for (int y = 0; y < im.getHeight(); y++) {
-//                for (int x = 0; x < im.getWidth(); x++) {
-//                    pixCol = pixelReader.getColor(x, y);
-//                    if ((pixCol.getRed() * 255) == 250)
-//                        pixelArray[arraySlot] = whitePix;
-//                    else if ((pixCol.getRed() * 255) == 200) {
-//                        whitePix = pix;
-//                        pixelArray[arraySlot] = whitePix;
-//                    }else
-//                        pix
-//                    arraySlot++;
-//                    pix++;
-//                    //to get
-//
-//                }
-//            }
-//        });
-//    }
 
     //for finding root
 //                        if (y = 0 && x > 0  &&  x < im.getWidth() && )
     public void unionQuick() {
         unionFindBtn.setOnAction(e -> {
-            if (pixelArray.length > 0) {
+            if (redCellArray.length > 0) {
                 Image im = imageViewEdited.getImage();
                 int width = (int) im.getWidth();
-                for (int id = 0; id < pixelArray.length; id++) {
+                for (int id = 0; id < redCellArray.length-1; id++) {
 
                     //union for non white pixels
-                    if (pixelArray[id] > 0) {
+                    if (redCellArray[id] >= 0) {
 
                         //union beside
-                        if (id + 1 < width && (id + 1) % width != 0)
-                            Union.quickUnion(pixelArray, id, id + 1);
+                        if ((id + 1) % width != 0 && redCellArray[id +1] >=0)
+                            Union.quickUnion(redCellArray, id, id + 1);
 
                         //union below
-                        if (id + width > pixelArray.length && pixelArray[id + width] > 0)
-                            Union.quickUnion(pixelArray, id, id + width);
+                        if (id + width < redCellArray.length && redCellArray[id +width] >=0)
+                            Union.quickUnion(redCellArray, id, id + width);
                     }
                 }
-                for (int i = 0; i < pixelArray.length; i++) {
-                    if (i % width != 0) System.out.println(Arrays.toString(pixelArray));
-                    else System.out.println("\n");
+
+
+                for (int i = 0; i < redCellArray.length; i++) {
+
+                    if (i % imageViewEdited.getImage().getWidth() == 0) {
+                        System.out.println();
+                    }
+                    System.out.print(Find.findIntArr(redCellArray,i) + " ");
                 }
             }
-
         });
     }
-//
+
 //    public void unionDisjointSets() {
 //        unionFindBtn.setOnAction(e -> {
-//            if (pixelArray.length > 0) {
+//            if (redCellArray.length > 0) {
 //                Image im = imageViewEdited.getImage();
 //                int width = (int) im.getWidth();
-//                for (int id = 0; id < pixelArray.length; id++) {
+//                for (int id = 0; id < redCellArray.length; id++) {
 //
 //                    //union for non white pixels
-//                    if (pixelArray[id] > 0) {
+//                    if (redCellArray[id] > 0) {
 //
 //                        //union beside
 //                        if (id + 1 < width && (id + 1) % width != 0)
-//                            Union.unionByHeightAndSize(pixelArray, id, id + 1);
+//                            Union.unionByHeightAndSize(redCellArray, id, id + 1);
 //
 //                        //union below
-//                        if (id + width > pixelArray.length && pixelArray[id + width] > 0)
-//                            Union.unionByHeightAndSize(pixelArray, id, id + width);
+//                        if (id + width > redCellArray.length && redCellArray[id + width] > 0)
+//                            Union.unionByHeightAndSize(redCellArray, id, id + width);
 //                    }
 //                }
-//                for (int i = 0; i < pixelArray.length; i++) {
-//                    if (i % width != 0) System.out.println(Arrays.toString(pixelArray));
+//                for (int i = 0; i < redCellArray.length; i++) {
+//                    if (i % width != 0) System.out.println(Arrays.toString(redCellArray));
 //                    else System.out.println("\n");
 //                }
 //            }
@@ -216,15 +192,10 @@ public class HomeController implements Initializable {
             WritableImage writableImage = new WritableImage(
                     (int) im.getWidth(), (int) im.getHeight());
             PixelWriter pixelWriter = writableImage.getPixelWriter();
-            double pix = 1;
-//            double pixCheck =1;
-            double whitePix = 0;
-//            pixelArray = new double[(int) (im.getWidth() * (int) im.getHeight())];
-            pixelArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
-            int redPix = 0;
-            int whitePixel = 0;
-            int purplePixel = 0;
-            int arraySlot = 0;
+            int pix = 1;
+            redCellArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
+            whiteCellArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
+            int whitePixel = -1;
 
             for (int y = 0; y < im.getHeight(); y++) {
                 for (int x = 0; x < im.getWidth(); x++) {
@@ -234,50 +205,48 @@ public class HomeController implements Initializable {
                     double b = color.getBlue() * 255;
 //                    System.out.println("x= " + x + ", y = " + y + ", b: " + b + ", g: " + g + ", r: " + r);
                     //finding a red cell and making it bright red
-                    if (r > 80 && (r - b) > 10 && r > g && r > b) {
+                    if (r > 80 && (r - b) > 20 && r > g && r > b) {
                         r = 200;
                         g = 10;
                         b = 10;
-                        redPix++;
-                        pixelArray[arraySlot] = (int)pix;
-                        pix++;
-//                        pixelArray[arraySlot] = red;
+//                        redPix++;
+//                        redCellArray[arraySlot] = pix;
+                        redCellArray[(y* (int)im.getWidth()) + x] = (y* (int)im.getWidth()) + x;
+                        whiteCellArray[(y* (int)im.getWidth()) + x] = whitePixel;
+
                     }
                     //setting purple 'white blood cells' nuclei
-                    if (b < 80 && b > g && b > r) {
+                    else if (Math.min(r,b-12)-g>40){// && b > g && b > r) {
                         b = 160;
                         r = 140;
                         g = 75;
-                        pixelArray[arraySlot] = (int)pix;
-                        pix++;
-//                        pixelArray[arraySlot] = purple;
+//                        redCellArray[(y* (int)im.getWidth()) + x] = (y* (int)im.getWidth()) + x;
+                        redCellArray[(y* (int)im.getWidth()) + x] = whitePixel;
+                        whiteCellArray[(y* (int)im.getWidth()) + x] = (y* (int)im.getWidth()) + x;
                     }
                     //setting white background pixels
-                    if (b > 80 && g > 80 && r > 80) {
+                    else {//(b > 80 && g > 80 && r > 80) {
                         b = r = g = 255;
-//                        pixelArray[arraySlot] = whitePix;
-                        pixelArray[arraySlot] = whitePixel;
+                        redCellArray[(y* (int)im.getWidth()) + x] = whitePixel;
+                        whiteCellArray[(y* (int)im.getWidth()) + x] = whitePixel;
                     }
-//                    if (pix > pixCheck) pixCheck = pix;
                     Color c3 = Color.rgb((int) r, (int) g, (int) b);
                     pixelWriter.setColor(x, y, c3);
-                    arraySlot++;
 
                 }
             }
 
 
-//            System.out.println("White Pixel count: " + whitePixel + ", Red Pixel count: " + redPix + ", Purple pixel count : " + purplePixel + ",ArraySize: " + pixelArray.length);
             imageViewEdited.setImage(writableImage);
-
-//            for (int i = 0; i < pixelArray.length; i++) {
-//            int i = 0;
-//            while (i < pixelArray.length)   {
-//             if(i % im.getWidth() == 0) {
+            System.out.println("array : " + redCellArray.length);
+//            for (int i = 0; i < redCellArray.length; i++) {
+////            int i = 0;
+////            while (i < redCellArray.length)   {
+//                if (i % imageView.getImage().getWidth() == 0) {
 //                    System.out.println();
 //                }
-//                 System.out.println(pixelArray[i]);
-//            i++;
+//                System.out.print(redCellArray[i] + " ");
+////            i++;
 //            }
             });
         }

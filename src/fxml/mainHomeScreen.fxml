@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="540.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.HomeController">
+<VBox prefHeight="540.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.HomeController">
     <children>
         <MenuBar VBox.vgrow="NEVER">
             <menus>
@@ -41,7 +41,6 @@
             <children>
                 <Pane layoutX="8.0" prefHeight="725.0" prefWidth="1300.0">
                     <children>
-                        <ImageView fx:id="imageView" fitHeight="337.5" fitWidth="600.0" layoutX="21.0" layoutY="30.0" pickOnBounds="true" preserveRatio="true" />
                         <Label layoutX="273.0" layoutY="14.0" text="Original Image" />
                         <GridPane layoutX="10.0" layoutY="472.0" prefWidth="200.0">
                             <columnConstraints>
@@ -75,7 +74,6 @@
                                 <Slider fx:id="opacitySlider" layoutX="10.0" layoutY="96.0" majorTickUnit="0.25" max="1.0" showTickLabels="true" showTickMarks="true" GridPane.rowIndex="4" />
                             </children>
                         </GridPane>
-                        <ImageView fx:id="imageViewEdited" fitHeight="337.5" fitWidth="600.0" layoutX="686.0" layoutY="30.0" pickOnBounds="true" preserveRatio="true" />
                         <Label layoutX="943.0" layoutY="14.0" text="Edited Image" />
                         <GridPane layoutX="1122.0" layoutY="531.0" prefHeight="150.0" prefWidth="167.0">
                             <columnConstraints>
@@ -106,6 +104,16 @@
                         <Button layoutX="220.0" layoutY="61.0" mnemonicParsing="false" text="Button" />
                     </buttons>
                   </ButtonBar>
+                  <Pane fx:id="ogImagePane" layoutX="21.0" layoutY="30.0" prefHeight="337.5" prefWidth="600.0">
+                     <children>
+                              <ImageView fx:id="imageView" fitHeight="337.5" fitWidth="600.0" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </Pane>
+                  <Pane fx:id="edImagePane" layoutX="686.0" layoutY="30.0" prefHeight="337.5" prefWidth="600.0">
+                     <children>
+                              <ImageView fx:id="imageViewEdited" fitHeight="337.5" fitWidth="600.0" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </Pane>
                     </children>
                 </Pane>
             </children>
