@@ -1,6 +1,7 @@
 package Controller;
 
 import Main.Main;
+import Utils.Union;
 import javafx.application.Platform;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -25,17 +26,17 @@ public class HomeController implements Initializable {
 
     public MenuItem openFinder, openTricolor;
     public ImageView imageView, imageViewEdited;
-    public Button grayScaleBtn, cancelChanges;
+    public Button grayScaleBtn, cancelChanges, noiseReductionBtn, unionFindBtn;
     public Label saturationLabel, brightnessLabel, contrastLabel, sepiaLabel;
     public ColorAdjust colorAdjust = new ColorAdjust();
     public double fileSize;
     public MenuItem quit, openRGB;
     public Label metaData;
-    public ImageView imageViewBlue;
     public Button tricolorBtn;
     public Slider redSlider, blueSlider, greenSlider, opacitySlider;
-    public Button unionFindBtn;
-    public Button noiseReductionBtn;
+//    public double[] pixelArray;
+    public int[] pixelArray;
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -45,14 +46,15 @@ public class HomeController implements Initializable {
         imageViewEdited.setImage(im);
         setOpenFinder();
         alterImageRedSlider();
-//        unionFind();
+//        unionDisjointSets();
+        unionQuick();
         decreaseNoise();
 //        setSaturation();
 //        setBrightness();
 //        setContrast();
 //        setSepia();
         setGrayScale();
-//        setCancelChanges();
+        setCancelChanges();
         setTricolor();
         quit();
 //        setOpenRGB();
@@ -151,6 +153,60 @@ public class HomeController implements Initializable {
 
     //for finding root
 //                        if (y = 0 && x > 0  &&  x < im.getWidth() && )
+    public void unionQuick() {
+        unionFindBtn.setOnAction(e -> {
+            if (pixelArray.length > 0) {
+                Image im = imageViewEdited.getImage();
+                int width = (int) im.getWidth();
+                for (int id = 0; id < pixelArray.length; id++) {
+
+                    //union for non white pixels
+                    if (pixelArray[id] > 0) {
+
+                        //union beside
+                        if (id + 1 < width && (id + 1) % width != 0)
+                            Union.quickUnion(pixelArray, id, id + 1);
+
+                        //union below
+                        if (id + width > pixelArray.length && pixelArray[id + width] > 0)
+                            Union.quickUnion(pixelArray, id, id + width);
+                    }
+                }
+                for (int i = 0; i < pixelArray.length; i++) {
+                    if (i % width != 0) System.out.println(Arrays.toString(pixelArray));
+                    else System.out.println("\n");
+                }
+            }
+
+        });
+    }
+//
+//    public void unionDisjointSets() {
+//        unionFindBtn.setOnAction(e -> {
+//            if (pixelArray.length > 0) {
+//                Image im = imageViewEdited.getImage();
+//                int width = (int) im.getWidth();
+//                for (int id = 0; id < pixelArray.length; id++) {
+//
+//                    //union for non white pixels
+//                    if (pixelArray[id] > 0) {
+//
+//                        //union beside
+//                        if (id + 1 < width && (id + 1) % width != 0)
+//                            Union.unionByHeightAndSize(pixelArray, id, id + 1);
+//
+//                        //union below
+//                        if (id + width > pixelArray.length && pixelArray[id + width] > 0)
+//                            Union.unionByHeightAndSize(pixelArray, id, id + width);
+//                    }
+//                }
+//                for (int i = 0; i < pixelArray.length; i++) {
+//                    if (i % width != 0) System.out.println(Arrays.toString(pixelArray));
+//                    else System.out.println("\n");
+//                }
+//            }
+//        });
+//    }
 
     public void setTricolor() {
         tricolorBtn.setOnAction(e -> {
@@ -161,15 +217,14 @@ public class HomeController implements Initializable {
                     (int) im.getWidth(), (int) im.getHeight());
             PixelWriter pixelWriter = writableImage.getPixelWriter();
             double pix = 1;
+//            double pixCheck =1;
             double whitePix = 0;
-            int[] pixelArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
+//            pixelArray = new double[(int) (im.getWidth() * (int) im.getHeight())];
+            pixelArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
             int redPix = 0;
             int whitePixel = 0;
             int purplePixel = 0;
             int arraySlot = 0;
-            int red = 4;
-            int purple = 7;
-            int white = 0;
 
             for (int y = 0; y < im.getHeight(); y++) {
                 for (int x = 0; x < im.getWidth(); x++) {
@@ -184,45 +239,51 @@ public class HomeController implements Initializable {
                         g = 10;
                         b = 10;
                         redPix++;
-//                        pixelArray[arraySlot] = pix;
-                        pixelArray[arraySlot] = red;
+                        pixelArray[arraySlot] = (int)pix;
                         pix++;
+//                        pixelArray[arraySlot] = red;
                     }
                     //setting purple 'white blood cells' nuclei
                     if (b < 80 && b > g && b > r) {
                         b = 160;
                         r = 140;
                         g = 75;
-//                        pixelArray[arraySlot] = pix;
-                        pixelArray[arraySlot] = purple;
+                        pixelArray[arraySlot] = (int)pix;
                         pix++;
-                        purplePixel++;
+//                        pixelArray[arraySlot] = purple;
                     }
                     //setting white background pixels
                     if (b > 80 && g > 80 && r > 80) {
                         b = r = g = 255;
 //                        pixelArray[arraySlot] = whitePix;
-                        pixelArray[arraySlot] = white;
-                        whitePixel++;
+                        pixelArray[arraySlot] = whitePixel;
                     }
+//                    if (pix > pixCheck) pixCheck = pix;
                     Color c3 = Color.rgb((int) r, (int) g, (int) b);
                     pixelWriter.setColor(x, y, c3);
                     arraySlot++;
 
                 }
             }
-            for (i var: pixelArray) {
-                System.out.println(var);
-                
-            }
 
-            System.out.println("White Pixel count: " + whitePixel + ", Red Pixel count: " + redPix + ", Purple pixel count : " + purplePixel + ",ArraySize: " + pixelArray.length);
+
+//            System.out.println("White Pixel count: " + whitePixel + ", Red Pixel count: " + redPix + ", Purple pixel count : " + purplePixel + ",ArraySize: " + pixelArray.length);
             imageViewEdited.setImage(writableImage);
-        });
-    }
+
+//            for (int i = 0; i < pixelArray.length; i++) {
+//            int i = 0;
+//            while (i < pixelArray.length)   {
+//             if(i % im.getWidth() == 0) {
+//                    System.out.println();
+//                }
+//                 System.out.println(pixelArray[i]);
+//            i++;
+//            }
+            });
+        }
 
 
-    public void setGrayScale() {
+        public void setGrayScale() {
         grayScaleBtn.setOnAction(e -> {
                     Image im = imageViewEdited.getImage();
                     PixelReader pixelReader = im.getPixelReader();
@@ -248,16 +309,12 @@ public class HomeController implements Initializable {
     }
 
     public void setCancelChanges() {
-        SepiaTone st = new SepiaTone();
+//        SepiaTone st = new SepiaTone();
         cancelChanges.setOnAction(e -> {
-            redSlider.setValue(0);
-            st.setLevel(0);
+//            st.setLevel(0);
 //            saturationSlider.setValue(0);
 //            contrastSlider.setValue(0);
 //            brightnessSlider.setValue(0);
-            colorAdjust.setContrast(0);
-            colorAdjust.setBrightness(0);
-            colorAdjust.setSaturation(0);
             Image freshImage = imageView.getImage();
             imageViewEdited.setImage(null);
             imageViewEdited.setImage(freshImage);
