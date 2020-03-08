@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="540.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.HomeController">
+<VBox prefHeight="540.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.HomeController">
     <children>
         <MenuBar VBox.vgrow="NEVER">
             <menus>
@@ -41,7 +41,6 @@
             <children>
                 <Pane layoutX="8.0" prefHeight="725.0" prefWidth="1300.0">
                     <children>
-                        <ImageView fx:id="imageView" fitHeight="337.5" fitWidth="600.0" layoutX="21.0" layoutY="30.0" pickOnBounds="true" preserveRatio="true" />
                         <Label layoutX="273.0" layoutY="14.0" text="Original Image" />
                         <GridPane layoutX="10.0" layoutY="472.0" prefWidth="200.0">
                             <columnConstraints>
@@ -69,13 +68,12 @@
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             </rowConstraints>
                             <children>
-                                <Slider fx:id="redSlider" layoutX="10.0" layoutY="6.0" majorTickUnit="0.25" max="1.0" showTickLabels="true" showTickMarks="true" GridPane.rowIndex="1" />
+                                <Slider fx:id="noiseSlider" layoutX="10.0" layoutY="6.0" majorTickUnit="20" max="100" showTickLabels="true" showTickMarks="true" snapToTicks="true" GridPane.rowIndex="1" />
                                 <Slider fx:id="blueSlider" layoutX="10.0" layoutY="36.0" majorTickUnit="0.25" max="1.0" showTickLabels="true" showTickMarks="true" GridPane.rowIndex="2" />
                                 <Slider fx:id="greenSlider" layoutX="10.0" layoutY="66.0" majorTickUnit="0.25" max="1.0" showTickLabels="true" showTickMarks="true" GridPane.rowIndex="3" />
                                 <Slider fx:id="opacitySlider" layoutX="10.0" layoutY="96.0" majorTickUnit="0.25" max="1.0" showTickLabels="true" showTickMarks="true" GridPane.rowIndex="4" />
                             </children>
                         </GridPane>
-                        <ImageView fx:id="imageViewEdited" fitHeight="337.5" fitWidth="600.0" layoutX="686.0" layoutY="30.0" pickOnBounds="true" preserveRatio="true" />
                         <Label layoutX="943.0" layoutY="14.0" text="Edited Image" />
                         <GridPane layoutX="1122.0" layoutY="531.0" prefHeight="150.0" prefWidth="167.0">
                             <columnConstraints>
@@ -94,6 +92,7 @@
                                 <Label fx:id="brightnessLabel" layoutX="10.0" layoutY="77.0" text="Image" GridPane.rowIndex="2" />
                                 <Label fx:id="contrastLabel" layoutX="10.0" layoutY="107.0" text="Image" GridPane.rowIndex="3" />
                                 <Label fx:id="sepiaLabel" layoutX="10.0" layoutY="137.0" text="Image" GridPane.rowIndex="4" />
+                        <Button fx:id="noiseBtn" mnemonicParsing="false" prefHeight="26.0" prefWidth="197.0" text="Cancel Noise" GridPane.rowIndex="1" />
       
                             </children>
                         </GridPane>
@@ -102,10 +101,20 @@
                     <buttons>
                       <Button fx:id="unionFindBtn" mnemonicParsing="false" text="Union Find" />
                         <Button fx:id="tricolorBtn" layoutX="125.0" layoutY="17.0" mnemonicParsing="false" text="Tri-color Conversion" />
-                        <Button fx:id="noiseReductionBtn" layoutX="30.0" layoutY="61.0" mnemonicParsing="false" text="Noise Reduction" />
-                        <Button layoutX="220.0" layoutY="61.0" mnemonicParsing="false" text="Button" />
+                        <Button fx:id="imageSizeReduction" layoutX="30.0" layoutY="61.0" mnemonicParsing="false" text="Image Size Reduction" />
+                        <Button fx:id="squareBloodCellsBtn" layoutX="220.0" layoutY="61.0" mnemonicParsing="false" text="Square BloodCells" />
                     </buttons>
                   </ButtonBar>
+                  <Pane fx:id="ogImagePane" layoutX="21.0" layoutY="30.0" prefHeight="337.5" prefWidth="600.0">
+                     <children>
+                              <ImageView fx:id="imageView" fitHeight="337.5" fitWidth="600.0" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </Pane>
+                  <Pane fx:id="edImagePane" layoutX="686.0" layoutY="30.0" prefHeight="337.5" prefWidth="600.0">
+                     <children>
+                              <ImageView fx:id="imageViewEdited" fitHeight="337.5" fitWidth="600.0" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </Pane>
                     </children>
                 </Pane>
             </children>

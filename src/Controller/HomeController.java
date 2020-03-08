@@ -1,6 +1,5 @@
 package Controller;
 
-import Main.Main;
 import Utils.Find;
 import Utils.Union;
 import javafx.application.Platform;
@@ -10,7 +9,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.effect.ColorAdjust;
-import javafx.scene.effect.SepiaTone;
 import javafx.scene.image.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -18,7 +16,8 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.ResourceBundle;
 
 import static Main.Main.pStage;
 
@@ -26,18 +25,19 @@ public class HomeController implements Initializable {
 
     public MenuItem openFinder, openTricolor;
     public ImageView imageView, imageViewEdited;
-    public Button grayScaleBtn, cancelChanges, noiseReductionBtn, unionFindBtn;
+    public Button grayScaleBtn, cancelChanges, imageSizeReduction, unionFindBtn, squareBloodCellsBtn, noiseBtn;
     public Label saturationLabel, brightnessLabel, contrastLabel, sepiaLabel;
     public ColorAdjust colorAdjust = new ColorAdjust();
     public double fileSize;
     public MenuItem quit, openRGB;
     public Label metaData;
     public Button tricolorBtn;
-    public Slider redSlider, blueSlider, greenSlider, opacitySlider;
-//    public double[] redCellArray;
+    public Slider noiseSlider, blueSlider, greenSlider, opacitySlider;
+    //    public double[] redCellArray;
     public int[] redCellArray, whiteCellArray;
-    public Pane ogImagePane,edImagePane;
-    public HashMap <String, LinkedList<Integer>> roots = new HashMap<>();
+    public HashMap<Integer, Integer> redCellMap;
+    public HashMap<Integer, Integer> whiteCellMap;
+    public Pane ogImagePane, edImagePane;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -46,21 +46,15 @@ public class HomeController implements Initializable {
         imageView.setImage(im);
         imageViewEdited.setImage(im);
         setOpenFinder();
-        alterImageRedSlider();
-//        unionDisjointSets();
-        unionQuick();
-        decreaseNoise();
-//        setSaturation();
-//        setBrightness();
-//        setContrast();
-//        setSepia();
+//        alterImageRedSlider();
+        setUnionFindBtn();
+        setImageSizeReduction();
         setGrayScale();
         setCancelChanges();
         setTricolor();
+        setSquareBloodCellsBtn();
+        noiseReduction();
         quit();
-//        setOpenRGB();
-
-        System.out.println("in Initialize");
     }
 
     public void setOpenFinder() {
@@ -88,34 +82,9 @@ public class HomeController implements Initializable {
         System.out.println(im.getUrl());
     }
 
-    public void alterImageRedSlider() {
-        redSlider.setMin(0);
-        redSlider.setMax(255);
-        redSlider.setOnMouseReleased(e -> {
-            Image im = imageViewEdited.getImage();
-            //reading color from loaded image
-            PixelReader pixelReader = im.getPixelReader();
-            WritableImage writableImage = new WritableImage(
-                    (int) im.getWidth(), (int) im.getHeight());
-            PixelWriter pixelWriter = writableImage.getPixelWriter();
 
-
-            for (int y = 0; y < im.getHeight(); y++) {
-                for (int x = 0; x < im.getWidth(); x++) {
-                    Color color = pixelReader.getColor(x, y);
-                    if (color.getRed() > 120) {
-                        Color redEdit = Color.rgb((int) (redSlider.getValue()), (int) (color.getGreen() * 255), (int) (color.getBlue() * 255));
-                        pixelWriter.setColor(x, y, redEdit);
-                    }
-
-                }
-            }
-            imageViewEdited.setImage(writableImage);
-        });
-    }
-
-    public void decreaseNoise() {
-        noiseReductionBtn.setOnAction(e -> {
+    public void setImageSizeReduction() {
+        imageSizeReduction.setOnAction(e -> {
             Image im = imageViewEdited.getImage();
             System.out.println("im url: " + im.getUrl());
             im = new Image(im.getUrl(), 144, 144, false, false);
@@ -123,66 +92,145 @@ public class HomeController implements Initializable {
         });
     }
 
-    //for finding root
-//                        if (y = 0 && x > 0  &&  x < im.getWidth() && )
-    public void unionQuick() {
+    public void setUnionFindBtn() {
         unionFindBtn.setOnAction(e -> {
-            if (redCellArray.length > 0) {
-                Image im = imageViewEdited.getImage();
-                int width = (int) im.getWidth();
-                for (int id = 0; id < redCellArray.length-1; id++) {
-
-                    //union for non white pixels
-                    if (redCellArray[id] >= 0) {
-
-                        //union beside
-                        if ((id + 1) % width != 0 && redCellArray[id +1] >=0)
-                            Union.quickUnion(redCellArray, id, id + 1);
-
-                        //union below
-                        if (id + width < redCellArray.length && redCellArray[id +width] >=0)
-                            Union.quickUnion(redCellArray, id, id + width);
-                    }
-                }
-
-
-                for (int i = 0; i < redCellArray.length; i++) {
-
-                    if (i % imageViewEdited.getImage().getWidth() == 0) {
-                        System.out.println();
-                    }
-                    System.out.print(Find.findIntArr(redCellArray,i) + " ");
-                }
-            }
+            setTricolor();
+            unionQuick(redCellArray);
+            System.out.println();
+            unionQuick(whiteCellArray);
         });
     }
 
-//    public void unionDisjointSets() {
-//        unionFindBtn.setOnAction(e -> {
-//            if (redCellArray.length > 0) {
-//                Image im = imageViewEdited.getImage();
-//                int width = (int) im.getWidth();
-//                for (int id = 0; id < redCellArray.length; id++) {
-//
-//                    //union for non white pixels
-//                    if (redCellArray[id] > 0) {
-//
-//                        //union beside
-//                        if (id + 1 < width && (id + 1) % width != 0)
-//                            Union.unionByHeightAndSize(redCellArray, id, id + 1);
-//
-//                        //union below
-//                        if (id + width > redCellArray.length && redCellArray[id + width] > 0)
-//                            Union.unionByHeightAndSize(redCellArray, id, id + width);
-//                    }
-//                }
-//                for (int i = 0; i < redCellArray.length; i++) {
-//                    if (i % width != 0) System.out.println(Arrays.toString(redCellArray));
-//                    else System.out.println("\n");
-//                }
-//            }
+    public void unionQuick(int[] arr) {
+        if (arr.length > 0) {
+            Image im = imageViewEdited.getImage();
+            int width = (int) im.getWidth();
+            for (int id = 0; id < arr.length - 1; id++) {
+
+                //union for non white pixels
+                if (arr[id] >= 0) {
+
+                    //union beside
+                    if ((id + 1) % width != 0 && arr[id + 1] >= 0)
+                        Union.quickUnion(arr, id, id + 1);
+
+                    //union below
+                    if (id + width < arr.length && arr[id + width] >= 0)
+                        Union.quickUnion(arr, id, id + width);
+                }
+            }
+            //print array to console
+            for (int i = 0; i < arr.length - 1; i++) {
+
+                if (i % imageViewEdited.getImage().getWidth() == 0) {
+                    System.out.println();
+                }
+                System.out.print(Find.findIntArr(arr, i) + " ");
+            }
+        }
+    }
+
+    public void setSquareBloodCellsBtn() {
+        squareBloodCellsBtn.setOnAction(e -> {
+            whiteCellMap = arrayToHashMap(whiteCellArray);
+            System.out.println();
+            redCellMap = arrayToHashMap(redCellArray);
+        });
+    }
+
+    public void drawRectangles(int[] arr) {
+        HashMap cellMap = arrayToHashMap(arr);
+
+//        System.out.println("cellMap of array " + arr + " " + cellMap.asMap());
+    }
+
+    public HashMap<Integer, Integer> arrayToHashMap(int[] arr) {
+        HashMap<Integer, Integer> cellMap = new HashMap<>();
+        for (int i = 0; i < arr.length - 1; i++) {
+            if (arr[i] != -1) {
+                if (!cellMap.containsKey(arr[i])) {
+                    cellMap.put(arr[i], 1);
+                } else if (cellMap.containsKey(arr[i])) {
+                    int cells = cellMap.get(arr[i]);
+                    cellMap.put(arr[i], cells + 1);
+                }
+            }
+        }
+//        cellMap.forEach((k, v) -> {
+//            System.out.println("Key: " + k + ", Value: [" + v + "]");
 //        });
-//    }
+        return cellMap;
+    }
+
+    public WritableImage colorNoiseWhite(HashMap<Integer, Integer> hMap, HashMap<Integer, Integer> hMap2, int[] arr, int[] arr2, int percentNoiseReduction) {
+//        hMap = arrayToHashMap(arr);
+        hMap.putAll(hMap2);
+        Image im = imageViewEdited.getImage();
+        PixelReader pr = im.getPixelReader();
+//        int per = percentNoiseReduction;
+        WritableImage writableImage = new WritableImage(
+                (int) im.getWidth(), (int) im.getHeight());
+        PixelWriter pixelWriter = writableImage.getPixelWriter();
+//        int arrValue = 0;
+//        for (int i = 0; i < arr.length - 1; i++) {
+//
+//            if (hMap.containsKey(i) && hMap.get(i) == arr[i] && val < per) {
+//
+//            }
+//        }
+
+//            for (int i = 0; i < arr.length; i++) {
+////            int i = 0;
+////            while (i < redCellArray.length)   {
+//                if (i % imageViewEdited.getImage().getWidth() == 0) {
+//                    System.out.println();
+//                }
+//                System.out.print(arr[i] + " ");
+////            i++;
+//            }
+        unionQuick(arr);
+        unionQuick(arr2);
+        imageViewEdited.setImage(im);
+        hMap.forEach((k, v) -> {
+                    if (v <= percentNoiseReduction) {
+                        System.out.println("key: " + k + ", value: " + v + "\nPercentNoiseReduction: " + percentNoiseReduction);
+                        for (int y = 0; y < im.getHeight(); y++) {
+                            for (int x = 0; x < im.getWidth(); x++) {
+//                    Color color = pr.getColor(x,y);
+                                if (arr[y * (int) im.getWidth() + x] == k || arr2[y * (int) im.getWidth() + x] == k) {
+//                                    System.out.println("Pixel in noise reduction: x: " + x + ", y: " + y );
+                                    pixelWriter.setColor(x, y, Color.WHITE);
+                                } else if (arr[y * (int) im.getWidth() + x] != -1)
+                                    pixelWriter.setColor(x, y, Color.RED);
+                                else if (arr2[y * (int) im.getWidth() + x] != -1) pixelWriter.setColor(x, y, Color.PURPLE);
+                                else pixelWriter.setColor(x, y, Color.WHITE);
+                            }
+                        }
+                    }
+                }
+        );
+        return writableImage;
+    }
+
+    public void noiseReduction() {
+//        setSquareBloodCellsBtn();
+        noiseBtn.setOnAction(e -> {
+
+            whiteCellMap = arrayToHashMap(whiteCellArray);
+            System.out.println();
+            redCellMap = arrayToHashMap(redCellArray);
+            int noisePercent = (int) noiseSlider.getValue() / 2;
+//            WritableImage wrImWhite = colorNoiseWhite(whiteCellMap, whiteCellArray, noisePercent);
+            WritableImage wrIm = colorNoiseWhite(redCellMap, whiteCellMap, redCellArray, whiteCellArray, noisePercent);
+            imageViewEdited.setImage(wrIm);
+
+        });
+    }
+
+
+    public void displayTricolor() {
+
+    }
 
     public void setTricolor() {
         tricolorBtn.setOnAction(e -> {
@@ -192,7 +240,6 @@ public class HomeController implements Initializable {
             WritableImage writableImage = new WritableImage(
                     (int) im.getWidth(), (int) im.getHeight());
             PixelWriter pixelWriter = writableImage.getPixelWriter();
-            int pix = 1;
             redCellArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
             whiteCellArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
             int whitePixel = -1;
@@ -203,32 +250,28 @@ public class HomeController implements Initializable {
                     double r = color.getRed() * 255;
                     double g = color.getGreen() * 255;
                     double b = color.getBlue() * 255;
-//                    System.out.println("x= " + x + ", y = " + y + ", b: " + b + ", g: " + g + ", r: " + r);
                     //finding a red cell and making it bright red
                     if (r > 80 && (r - b) > 20 && r > g && r > b) {
                         r = 200;
                         g = 10;
                         b = 10;
-//                        redPix++;
-//                        redCellArray[arraySlot] = pix;
-                        redCellArray[(y* (int)im.getWidth()) + x] = (y* (int)im.getWidth()) + x;
-                        whiteCellArray[(y* (int)im.getWidth()) + x] = whitePixel;
-
+                        redCellArray[(y * (int) im.getWidth()) + x] = (y * (int) im.getWidth()) + x;
+                        whiteCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
                     }
                     //setting purple 'white blood cells' nuclei
-                    else if (Math.min(r,b-12)-g>40){// && b > g && b > r) {
+                    else if (Math.min(r, b - 12) - g > 38) {// && b > g && b > r) {
                         b = 160;
                         r = 140;
                         g = 75;
 //                        redCellArray[(y* (int)im.getWidth()) + x] = (y* (int)im.getWidth()) + x;
-                        redCellArray[(y* (int)im.getWidth()) + x] = whitePixel;
-                        whiteCellArray[(y* (int)im.getWidth()) + x] = (y* (int)im.getWidth()) + x;
+                        redCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
+                        whiteCellArray[(y * (int) im.getWidth()) + x] = (y * (int) im.getWidth()) + x;
                     }
                     //setting white background pixels
                     else {//(b > 80 && g > 80 && r > 80) {
                         b = r = g = 255;
-                        redCellArray[(y* (int)im.getWidth()) + x] = whitePixel;
-                        whiteCellArray[(y* (int)im.getWidth()) + x] = whitePixel;
+                        redCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
+                        whiteCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
                     }
                     Color c3 = Color.rgb((int) r, (int) g, (int) b);
                     pixelWriter.setColor(x, y, c3);
@@ -248,11 +291,11 @@ public class HomeController implements Initializable {
 //                System.out.print(redCellArray[i] + " ");
 ////            i++;
 //            }
-            });
-        }
+        });
+    }
 
 
-        public void setGrayScale() {
+    public void setGrayScale() {
         grayScaleBtn.setOnAction(e -> {
                     Image im = imageViewEdited.getImage();
                     PixelReader pixelReader = im.getPixelReader();
@@ -300,4 +343,62 @@ public class HomeController implements Initializable {
         quit.setOnAction(e -> Platform.exit());
     }
 
+//legit
+//    public void unionQuick() {
+//        unionFindBtn.setOnAction(e -> {
+//            if (redCellArray.length > 0) {
+//                Image im = imageViewEdited.getImage();
+//                int width = (int) im.getWidth();
+//                for (int id = 0; id < redCellArray.length-1; id++) {
+//
+//                    //union for non white pixels
+//                    if (redCellArray[id] >= 0) {
+//
+//                        //union beside
+//                        if ((id + 1) % width != 0 && redCellArray[id +1] >=0)
+//                            Union.quickUnion(redCellArray, id, id + 1);
+//
+//                        //union below
+//                        if (id + width < redCellArray.length && redCellArray[id +width] >=0)
+//                            Union.quickUnion(redCellArray, id, id + width);
+//                    }
+//                }
+//
+//
+//                for (int i = 0; i < redCellArray.length; i++) {
+//
+//                    if (i % imageViewEdited.getImage().getWidth() == 0) {
+//                        System.out.println();
+//                    }
+//                    System.out.print(Find.findIntArr(redCellArray,i) + " ");
+//                }
+//            }
+//        });
+//    }
+//    public void unionDisjointSets() {
+//        unionFindBtn.setOnAction(e -> {
+//            if (redCellArray.length > 0) {
+//                Image im = imageViewEdited.getImage();
+//                int width = (int) im.getWidth();
+//                for (int id = 0; id < redCellArray.length; id++) {
+//
+//                    //union for non white pixels
+//                    if (redCellArray[id] > 0) {
+//
+//                        //union beside
+//                        if (id + 1 < width && (id + 1) % width != 0)
+//                            Union.unionByHeightAndSize(redCellArray, id, id + 1);
+//
+//                        //union below
+//                        if (id + width > redCellArray.length && redCellArray[id + width] > 0)
+//                            Union.unionByHeightAndSize(redCellArray, id, id + width);
+//                    }
+//                }
+//                for (int i = 0; i < redCellArray.length; i++) {
+//                    if (i % width != 0) System.out.println(Arrays.toString(redCellArray));
+//                    else System.out.println("\n");
+//                }
+//            }
+//        });
+//    }
 }
