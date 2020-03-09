@@ -25,7 +25,7 @@ public class HomeController implements Initializable {
 
     public MenuItem openFinder, openTricolor;
     public ImageView imageView, imageViewEdited;
-    public Button grayScaleBtn, cancelChanges, imageSizeReduction, unionFindBtn, squareBloodCellsBtn, noiseBtn;
+    public Button grayScaleBtn, cancelChanges, imageSizeReduction, unionFindBtn, squareBloodCellsBtn, noiseBtn, rectangleBtn;
     public Label saturationLabel, brightnessLabel, contrastLabel, sepiaLabel;
     public ColorAdjust colorAdjust = new ColorAdjust();
     public double fileSize;
@@ -54,6 +54,7 @@ public class HomeController implements Initializable {
         setTricolor();
         setSquareBloodCellsBtn();
         noiseReduction();
+        setDrawRectangle();
         quit();
     }
 
@@ -101,6 +102,7 @@ public class HomeController implements Initializable {
         });
     }
 
+
     public void unionQuick(int[] arr) {
         if (arr.length > 0) {
             Image im = imageViewEdited.getImage();
@@ -138,8 +140,50 @@ public class HomeController implements Initializable {
         });
     }
 
-    public void drawRectangles(int[] arr) {
-        HashMap cellMap = arrayToHashMap(arr);
+    public void setDrawRectangle() {
+        rectangleBtn.setOnAction(e -> {
+            drawRectangles(redCellArray, redCellMap);
+        });
+    }
+
+    public void drawRectangles(int[] arr, HashMap<Integer, Integer> rootMap) {
+        Image im = imageViewEdited.getImage();
+        int width = (int) im.getWidth();
+        int height = (int) im.getHeight();
+        int cellWidth = 0;
+        int cellHeight = 0;
+//        int cellWidth = 0;
+        Pane rectPane = edImagePane;
+        rootMap.forEach((k, v) -> {
+            if (v > 10) {
+//                int xRoot = Find.findIntArr(arr,k);
+                int xRoot = Find.findIntArr(arr, k) % width;
+                int yRoot = xRoot / height;
+//                System.out.println("x: " + x + ", y: " + y);
+//                xRoot
+                int recWidth = 0;
+//                Rectangle rectangle = new Rectangle(xRoot, yRoot, , )
+            }
+        });
+
+//        for (int y = 0; y < im.getHeight(); y++) {
+//            for (int x = 0; x < im.getWidth(); x++) {
+//
+//                //union for non white pixels
+//                if (arr[(y * width) + x] >= 0) {
+//
+//                    //union beside
+//                    if ((arr[y * width + (x + 1)]) % width != 0 && arr[y * width + (x + 1)] >= 0 && arr[y * width + x] == arr[y * width + (x + 1)])
+//rect
+//
+//                    //union below
+//                    if (id + width < arr.length && arr[id + width] >= 0)
+//                        Union.quickUnion(arr, id, id + width);
+//                }
+//            }
+//        }
+//        rectPane.getChildren().add(rect());
+
 
 //        System.out.println("cellMap of array " + arr + " " + cellMap.asMap());
     }
@@ -170,6 +214,7 @@ public class HomeController implements Initializable {
 //        int per = percentNoiseReduction;
         WritableImage writableImage = new WritableImage(
                 (int) im.getWidth(), (int) im.getHeight());
+        writableImage = (WritableImage) im;
         PixelWriter pixelWriter = writableImage.getPixelWriter();
 //        int arrValue = 0;
 //        for (int i = 0; i < arr.length - 1; i++) {
@@ -190,25 +235,42 @@ public class HomeController implements Initializable {
 //            }
         unionQuick(arr);
         unionQuick(arr2);
-        imageViewEdited.setImage(im);
-        hMap.forEach((k, v) -> {
-                    if (v <= percentNoiseReduction) {
-                        System.out.println("key: " + k + ", value: " + v + "\nPercentNoiseReduction: " + percentNoiseReduction);
-                        for (int y = 0; y < im.getHeight(); y++) {
-                            for (int x = 0; x < im.getWidth(); x++) {
-//                    Color color = pr.getColor(x,y);
-                                if (arr[y * (int) im.getWidth() + x] == k || arr2[y * (int) im.getWidth() + x] == k) {
+//        imageViewEdited.setImage(im);
+//        hMap.forEach((k, v) -> {
+//                    if (v <= percentNoiseReduction) {
+//                        System.out.println("key: " + k + ", value: " + v + "\nPercentNoiseReduction: " + percentNoiseReduction);
+        for (int y = 0; y < im.getHeight(); y++) {
+            for (int x = 0; x < im.getWidth(); x++) {
+                int pix = y * (int) im.getWidth() + x;
+                if (arr[pix] > -1 || arr2[pix] > -1) {
+//                    if ((hMap.containsKey(arr[pix]) || hMap.containsKey(arr2[pix])) && ((hMap.get(arr[pix]) < percentNoiseReduction) || (hMap.get(arr2[pix]) < percentNoiseReduction))) {
+                    if ((hMap.containsKey(arr[pix]) && (hMap.get(arr[pix]) < percentNoiseReduction)) || (hMap.containsKey(arr2[pix]) && (hMap.get(arr2[pix]) < percentNoiseReduction))) {
 //                                    System.out.println("Pixel in noise reduction: x: " + x + ", y: " + y );
-                                    pixelWriter.setColor(x, y, Color.WHITE);
-                                } else if (arr[y * (int) im.getWidth() + x] != -1)
-                                    pixelWriter.setColor(x, y, Color.RED);
-                                else if (arr2[y * (int) im.getWidth() + x] != -1) pixelWriter.setColor(x, y, Color.PURPLE);
-                                else pixelWriter.setColor(x, y, Color.WHITE);
-                            }
-                        }
+//                                    System.out.println("hmap key: " + hMap.containsKey(arr[y * (int) im.getWidth() + x]));
+//                    System.out.println("in first if white noise reduction");
+                        pixelWriter.setColor(x, y, Color.WHITE);
                     }
+
+//                } else if (arr[y * (int) im.getWidth() + x] != -1) {
+//
+////                    System.out.println("in array for red else");
+//                    pixelWriter.setColor(x, y, Color.RED);
+//                } else if (arr2[y * (int) im.getWidth() + x] != -1) {
+//                    pixelWriter.setColor(x, y, Color.PURPLE);
+////                    System.out.println("in array2 for purple else");
+//                }
+//                } else {
+//                    pixelWriter.setColor(x, y, Color.WHITE);
+//                    System.out.println("in final else");
+//                }
+//                           if ((hMap.get(arr[y * (int) im.getWidth() + x]) < percentNoiseReduction)) {
+////                                    System.out.println("Pixel in noise reduction: x: " + x + ", y: " + y );
+//                                pixelWriter.setColor(x, y, Color.WHITE);
+//                        }
                 }
-        );
+            }
+        }
+//        );
         return writableImage;
     }
 
