@@ -4,6 +4,7 @@ import Utils.Find;
 import Utils.Union;
 import javafx.application.Platform;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.*;
@@ -14,11 +15,10 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static Main.Main.pStage;
+import static javafx.scene.paint.Color.RED;
 
 public class HomeController implements Initializable {
 
@@ -133,8 +133,10 @@ public class HomeController implements Initializable {
     public void setCountCellsBtn() {
         countCellsBtn.setOnAction(e -> {
             int whiteCellCount = countCells(whiteCellMap, noiseSlider.getValue());
+            countInCluster();
             cellCount = 0;
             int redCellCount = countCells(redCellMap, noiseSlider.getValue());
+//            countInCluster(redCellMap);
             System.out.println("whiteCell count: " + whiteCellCount + ", RedCell count: " + redCellCount);
         });
     }
@@ -147,24 +149,6 @@ public class HomeController implements Initializable {
         });
         return cellCount;
     }
-
-//    public void countCells(HashMap<Integer, Integer> hmap) {
-//        countCellsBtn.setOnAction(
-//                hmap.forEach((k, v) -> {
-//                    System.out.println("key: " + k + ", v" + v);
-//                    int vTotal = 0;
-//                    if (v > 10) {
-//                        vTotal += v;
-//                        vTotal = vTotal / hmap.size();
-//                    }
-////                    cellCount = vTotal;
-//
-////                    System.out.println("cellCount: " + cellCount);
-//
-//                    })
-//        );
-////        return cellCount;
-//    }
 
     public void setSquareBloodCellsBtn() {
         squareBloodCellsBtn.setOnAction(e -> {
@@ -180,7 +164,7 @@ public class HomeController implements Initializable {
             redCellMap = arrayToHashMap(redCellArray);
             drawRectangles(redCellArray, redCellMap, Color.GREEN, (int) noiseSlider.getValue());
             whiteCellMap = arrayToHashMap(whiteCellArray);
-            drawRectangles(whiteCellArray, whiteCellMap, Color.BLUE, (int) noiseSlider.getValue());
+            drawRectangles(whiteCellArray, whiteCellMap, RED, (int) noiseSlider.getValue());
             System.out.println("array" + redCellArray.length);
         });
     }
@@ -194,8 +178,18 @@ public class HomeController implements Initializable {
         edImagePane.setLayoutX(0);
         edImagePane.setLayoutY(0);
 
+        Collection col = (rootMap.values());
+        int cc = 0;
+        int valuesOverPerc = 0;
+        for (Object i : col
+        ) {
+            if ((int) i > percentNoiseReduction) {
+                cc = cc + (int) i;
+                valuesOverPerc++;
+            }
+        }
+        int aCellSize = cc / valuesOverPerc;
         rootMap.forEach((k, v) -> {
-            boolean initialHeight = false;
             int cellWidth = 1;
             int cellHeight = 1;
             int yRoot = 0;
@@ -216,19 +210,12 @@ public class HomeController implements Initializable {
                             if (y > yRoot + cellHeight) cellHeight = y - yRoot;
                         }
                     }
-//                Rectangle rectangle2 = new Rectangle(0, 0, 400, 400);
                 Rectangle rectangle = new Rectangle(xRoot, yRoot, cellWidth, cellHeight);
-//                rectangle.setOnMouseClicked(e -> {
-
-//                    edImagePane.getChildren().add(label);
-//                });
-                System.out.println("rectangle width " + cellWidth + ", height" + cellHeight);
-                float rec = cellWidth + cellHeight / 1000;
-                float[] rectArr = new float[rootMap.size()];
-                rectArr[rootMap.size() - 1] = rec;
                 totalCellSize = totalCellSize + (cellHeight * cellWidth);
                 rectangle.setFill(Color.TRANSPARENT);
-                rectangle.setStroke(color);
+                if (cellHeight * cellWidth > (aCellSize * 2) && color != RED) {
+                    rectangle.setStroke(Color.BLUE);
+                } else rectangle.setStroke(color);
                 index++;
                 Label label = new Label();
                 label.setLayoutX(xRoot + cellWidth - 18);
@@ -236,29 +223,33 @@ public class HomeController implements Initializable {
                 label.setStyle("-fx-font-weight: bold");
                 label.setText(String.valueOf(index));
                 edImagePane.getChildren().add(label);
-//                                edImagePane.getChildren().add(rectangle2);
                 edImagePane.getChildren().add(rectangle);
-//                edImagePane.getChildren().add(rectangle);
-//                rectPane.getChildren().add(rectangle);
-//                System.out.println("x: " + x + ", y: " + y);
-         //   }
-           // initialHeight = false;
-            int cellPerCluster = (int) ((rectangle.getHeight() + rectangle.getWidth()) / countCells(rootMap, noiseSlider.getValue()));
-            Tooltip tooltip = new Tooltip("Estimated blood cells: " + cellPerCluster);
-            Tooltip.install(rectangle, tooltip);
-            rectangle.setOnMouseClicked(e -> {
-                System.out.println("tooltip" + tooltip.getText());
-                System.out.println("totalCell size: " + totalCellSize);
-            });
-        }
+            }
         });
-        avgCellSize = totalCellSize / countCells(rootMap, noiseSlider.getValue());
         cellCount = 0;
-        System.out.println("avgCellSize: " + avgCellSize);
     }
 
-    public void countInCluster() {
-//        edImagePane.getChildren().
+    public int countInCluster() {
+        int temp = 0, avg = 0, count = 0, inCluster = 0;
+        for (Node node : edImagePane.getChildren()
+        )
+            if (node instanceof Rectangle && ((Rectangle) node).getStroke().equals(Color.GREEN)) {
+                temp = temp + (int) ((Rectangle) node).getHeight() * (int) ((Rectangle) node).getWidth();
+                System.out.println("is a rectangle, size: " + temp);
+                count++;
+            }
+        for (Node node : edImagePane.getChildren()) {
+
+            if (node instanceof Rectangle && count > 0) {
+                System.out.println("avg size cell: " + temp / count);
+                avg = temp / count;
+                inCluster = (int) ((((((Rectangle) node).getHeight() * ((Rectangle) node).getWidth())) / avg) *1.2);
+                if (((Rectangle) node).getStroke().equals(RED) || inCluster < 1) inCluster = 1;
+                Tooltip tooltip = new Tooltip("Estimated blood cells: " + inCluster);
+                Tooltip.install(node, tooltip);
+            }
+        }
+        return avg;
     }
 
     public int arrayFrequency(float[] fArr, float n) {
@@ -294,18 +285,12 @@ public class HomeController implements Initializable {
                 }
             }
         }
-//        cellMap.forEach((k, v) -> {
-//            System.out.println("Key: " + k + ", Value: [" + v + "]");
-//        });
         return cellMap;
     }
 
     public WritableImage colorNoiseWhite(HashMap<Integer, Integer> hMap, HashMap<Integer, Integer> hMap2, int[] arr, int[] arr2, int percentNoiseReduction) {
-//        hMap = arrayToHashMap(arr);
-//        hMap.putAll(hMap2);
         Image im = imageViewEdited.getImage();
         PixelReader pr = im.getPixelReader();
-//        int per = percentNoiseReduction;
         WritableImage writableImage;
         writableImage = (WritableImage) im;
         PixelWriter pixelWriter = writableImage.getPixelWriter();
@@ -315,27 +300,10 @@ public class HomeController implements Initializable {
         for (int y = 0; y < im.getHeight(); y++) {
             for (int x = 0; x < im.getWidth(); x++) {
                 int pix = y * (int) im.getWidth() + x;
-//                if (Find.findIntArr(arr, pix) > -1 || Find.findIntArr(arr2, pix) > -1) {//] > -1) {
-//                if (Find.findIntArr(arr, pix) == 17718){
-//                        System.out.println("Hello");
-//                    if (Find.findIntArr(arr, pix) > -1) {//] > -1) {
-//                    if ((hMap.containsKey(arr[pix]) || hMap.containsKey(arr2[pix])) && ((hMap.get(arr[pix]) < percentNoiseReduction) || (hMap.get(arr2[pix]) < percentNoiseReduction))) {
                 if (Find.findIntArr(arr, pix) > -1 && hMap.containsKey(Find.findIntArr(arr, pix)) && (hMap.get(Find.findIntArr(arr, pix)) < percentNoiseReduction))
-//                    if (arr[pix] < arr.length)
-//                        arr[pix] = -1;
                     pixelWriter.setColor(x, y, Color.WHITE);
-//                hMap.put(Find.findIntArr(arr,pix), 0);
-                //|| (hMap2.containsKey(Find.findIntArr(arr2, pix)) && hMap2.get(Find.findIntArr(arr2, pix)) < percentNoiseReduction)) {//[pix]) && (hMap.get(arr[pix]) < percentNoiseReduction))){ //|| (hMap.containsKey(arr2[pix]) && (hMap.get(arr2[pix]) < percentNoiseReduction))) {
-//                                    System.out.println("Pixel in noise reduction: x: " + x + ", y: " + y );||
-//                        if (Find.findIntArr(arr2, pix) > -1) {
                 if (Find.findIntArr(arr2, pix) > -1 && hMap2.containsKey(Find.findIntArr(arr2, pix)) && hMap2.get(Find.findIntArr(arr2, pix)) < percentNoiseReduction) {
-
-//                                    System.out.println("hmap key: " + hMap.containsKey(arr[y * (int) im.getWidth() + x]));
-//                    System.out.println("in first if white noise reduction");
-//                    if (arr2[pix] < arr2.length) arr2[pix] = -1;
-
                     pixelWriter.setColor(x, y, Color.WHITE);
-//                    hMap2.put(Find.findIntArr(arr2,pix), 0);
                 }
             }
         }
@@ -344,16 +312,13 @@ public class HomeController implements Initializable {
     }
 
     public void noiseReduction() {
-//        setSquareBloodCellsBtn();
         noiseBtn.setOnAction(e -> {
             whiteCellMap = arrayToHashMap(whiteCellArray);
             System.out.println();
             redCellMap = arrayToHashMap(redCellArray);
             int noisePercent = (int) noiseSlider.getValue();
-//            WritableImage wrImWhite = colorNoiseWhite(whiteCellMap, whiteCellArray, noisePercent);
             WritableImage wrIm = colorNoiseWhite(redCellMap, whiteCellMap, redCellArray, whiteCellArray, noisePercent);
             imageViewEdited.setImage(wrIm);
-
         });
     }
 
@@ -398,12 +363,11 @@ public class HomeController implements Initializable {
                         b = 160;
                         r = 140;
                         g = 75;
-//                        redCellArray[(y* (int)im.getWidth()) + x] = (y* (int)im.getWidth()) + x;
                         redCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
                         whiteCellArray[(y * (int) im.getWidth()) + x] = (y * (int) im.getWidth()) + x;
                     }
                     //setting white background pixels
-                    else {//(b > 80 && g > 80 && r > 80) {
+                    else {
                         b = r = g = 255;
                         redCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
                         whiteCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
@@ -415,15 +379,6 @@ public class HomeController implements Initializable {
             }
             imageViewEdited.setImage(writableImage);
             System.out.println("array : " + redCellArray.length);
-//            for (int i = 0; i < redCellArray.length; i++) {
-////            int i = 0;
-////            while (i < redCellArray.length)   {
-//                if (i % imageView.getImage().getWidth() == 0) {
-//                    System.out.println();
-//                }
-//                System.out.print(redCellArray[i] + " ");
-////            i++;
-//            }
         });
     }
 
@@ -435,7 +390,6 @@ public class HomeController implements Initializable {
                     WritableImage writableImage = new WritableImage(
                             (int) im.getWidth(), (int) im.getHeight());
                     PixelWriter pixelWriter = writableImage.getPixelWriter();
-
 
                     for (int y = 0; y < im.getHeight(); y++) {
                         for (int x = 0; x < im.getWidth(); x++) {
@@ -454,12 +408,7 @@ public class HomeController implements Initializable {
     }
 
     public void setCancelChanges() {
-//        SepiaTone st = new SepiaTone();
         cancelChanges.setOnAction(e -> {
-//            st.setLevel(0);
-//            saturationSlider.setValue(0);
-//            contrastSlider.setValue(0);
-//            brightnessSlider.setValue(0);
             Image freshImage = imageView.getImage();
             imageViewEdited.setImage(null);
             imageViewEdited.setImage(freshImage);
@@ -467,12 +416,6 @@ public class HomeController implements Initializable {
             edImagePane.getChildren().clear();
             index = 0;
             cellCount = 0;
-//            edImagePane2.getChildren().remove(obj);
-
-//            sepiaLabel.setText("Sepia : ");
-//            saturationLabel.setText("Saturation : ");
-//            brightnessLabel.setText("Brightness : ");
-//            contrastLabel.setText("Contrast : ");
         });
     }
 
