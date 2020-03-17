@@ -1,12 +1,12 @@
 package Controller;
 
+import Main.Main;
 import Utils.Find;
 import Utils.Union;
 import javafx.application.Platform;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -15,25 +15,46 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.ResourceBundle;
 
-import static Main.Main.pStage;
-import static javafx.scene.paint.Color.RED;
+import static Main.Main.*;
 
 public class HomeController implements Initializable {
 
     public MenuItem openFinder, openTricolor, quit;
     public ImageView imageView, imageViewEdited;
     public Button grayScaleBtn, cancelChanges, imageSizeReduction, unionFindBtn, squareBloodCellsBtn, noiseBtn, rectangleBtn, tricolorBtn, countCellsBtn;
-    public Label saturationLabel, brightnessLabel, contrastLabel, sepiaLabel, metaData;
-    public ColorAdjust colorAdjust = new ColorAdjust();
+    public Label metaData;
     public double fileSize;
-    public Slider noiseSlider, blueSlider, greenSlider, opacitySlider;
-    //    public double[] redCellArray;
+    public Slider noiseSlider;
     public int[] redCellArray, whiteCellArray;
     public HashMap<Integer, Integer> redCellMap, whiteCellMap;
     public Pane ogImagePane, edImagePane, edImagePane2, ogImagePane2;
-    public int avgCellSize = 0, totalCellSize = 0, index = 0, cellCount = 0;
+    public int totalCellSize = 0, index = 0, cellCount = 0;
+    public ImageView imageViewEdited1;
+    public Pane edImagePane1;
+    public Button recTriColor;
+    public Label cellCountDisplayLbl;
+
+    public boolean isAlreadyDrawn() {
+        return alreadyDrawn;
+    }
+
+    public void setAlreadyDrawn(boolean alreadyDrawn) {
+        this.alreadyDrawn = alreadyDrawn;
+    }
+
+    public boolean isAlreadyDrawn2() {
+        return alreadyDrawn2;
+    }
+
+    public void setAlreadyDrawn2(boolean alreadyDrawn2) {
+        this.alreadyDrawn2 = alreadyDrawn2;
+    }
+
+    private boolean alreadyDrawn = false, alreadyDrawn2 = false;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -41,17 +62,19 @@ public class HomeController implements Initializable {
         Image im = new Image(file.toURI().toString(), 400, 400, false, false);
         imageView.setImage(im);
         imageViewEdited.setImage(im);
+        imageMeta();
+        setTriColorScene();
         setOpenFinder();
-//        alterImageRedSlider();
         setUnionFindBtn();
         setImageSizeReduction();
         setGrayScale();
-        setCancelChanges();
+        cancelChanges();
         setTricolor();
         setSquareBloodCellsBtn();
         noiseReduction();
         setDrawRectangle();
         setCountCellsBtn();
+        recTriColor();
         quit();
     }
 
@@ -67,10 +90,19 @@ public class HomeController implements Initializable {
                 setCancelChanges();
                 imageView.setImage(im);
                 imageViewEdited.setImage(im);
+                imageViewEdited1.setImage(im);
                 imageMeta();
 //                edImagePane2.getChildren().removeAll();
             } catch (Exception ignored) {
             }
+        });
+    }
+
+    public void setTriColorScene() {
+        openTricolor.setOnAction(e -> {
+            sStage.setScene(Main.triColorScene);
+            sStage.show();
+//            rgbCon.rgbImages();
         });
     }
 
@@ -91,9 +123,10 @@ public class HomeController implements Initializable {
         });
     }
 
+
     public void setUnionFindBtn() {
         unionFindBtn.setOnAction(e -> {
-            setTricolor();
+//            setTricolor();
             unionQuick(redCellArray);
             System.out.println();
             unionQuick(whiteCellArray);
@@ -134,9 +167,9 @@ public class HomeController implements Initializable {
         countCellsBtn.setOnAction(e -> {
             int whiteCellCount = countCells(whiteCellMap, noiseSlider.getValue());
             countInCluster();
-            cellCount = 0;
+            index = 0;
             int redCellCount = countCells(redCellMap, noiseSlider.getValue());
-//            countInCluster(redCellMap);
+            cellCountDisplayLbl.setText("WhiteCell count: " + whiteCellCount + ", RedCell count: " + redCellCount);
             System.out.println("whiteCell count: " + whiteCellCount + ", RedCell count: " + redCellCount);
         });
     }
@@ -150,6 +183,51 @@ public class HomeController implements Initializable {
         return cellCount;
     }
 
+    public void rectangle_a_fy(Pane pane, boolean drawn) {
+        if (!drawn) {
+            index = 0;
+            redCellMap = arrayToHashMap(redCellArray);
+            drawRectangles(redCellArray, redCellMap, Color.GREEN, (int) noiseSlider.getValue(), pane);
+            whiteCellMap = arrayToHashMap(whiteCellArray);
+            drawRectangles(whiteCellArray, whiteCellMap, Color.RED, (int) noiseSlider.getValue(), pane);
+            if (pane.equals(edImagePane))
+                alreadyDrawn2 = true;
+            else alreadyDrawn = true;
+        } else {
+            pane.getChildren().clear();
+            if (pane.equals(edImagePane))
+                alreadyDrawn2 = false;
+            else alreadyDrawn = false;
+            index = 0;
+        }
+    }
+
+    public void recTriColor() {
+        recTriColor.setOnAction(e -> {
+            rectangle_a_fy(edImagePane1, alreadyDrawn);
+        });
+    }
+
+    public void setDrawRectangle() {
+        rectangleBtn.setOnAction(e -> {
+            rectangle_a_fy(edImagePane, alreadyDrawn2);
+        });
+    }
+
+
+//    public void setDrawRectangle() {
+//        rectangleBtn.setOnAction(e -> {
+//            if (alreadyDrawn2 ==false) {
+//                index = 0;
+//                Image im = imageViewEdited.getImage();
+//                redCellMap = arrayToHashMap(redCellArray);
+//                drawRectangles(redCellArray, redCellMap, Color.GREEN, (int) noiseSlider.getValue(), edImagePane);
+//                whiteCellMap = arrayToHashMap(whiteCellArray);
+//                drawRectangles(whiteCellArray, whiteCellMap, Color.RED, (int) noiseSlider.getValue(), edImagePane);
+//            }
+//        });
+//    }
+
     public void setSquareBloodCellsBtn() {
         squareBloodCellsBtn.setOnAction(e -> {
             whiteCellMap = arrayToHashMap(whiteCellArray);
@@ -158,25 +236,12 @@ public class HomeController implements Initializable {
         });
     }
 
-    public void setDrawRectangle() {
-        rectangleBtn.setOnAction(e -> {
-            Image im = imageViewEdited.getImage();
-            redCellMap = arrayToHashMap(redCellArray);
-            drawRectangles(redCellArray, redCellMap, Color.GREEN, (int) noiseSlider.getValue());
-            whiteCellMap = arrayToHashMap(whiteCellArray);
-            drawRectangles(whiteCellArray, whiteCellMap, RED, (int) noiseSlider.getValue());
-            System.out.println("array" + redCellArray.length);
-        });
-    }
 
-    public void drawRectangles(int[] arr, HashMap<Integer, Integer> rootMap, Color color, int percentNoiseReduction) {
+    public void drawRectangles(int[] arr, HashMap<Integer, Integer> rootMap, Color color, int percentNoiseReduction, Pane pane) {
         Image image = imageViewEdited.getImage();
         double aspectRatio = image.getWidth() / image.getHeight();
         double width = Math.min(imageViewEdited.getFitWidth(), imageViewEdited.getFitHeight() * aspectRatio);
         double height = Math.min(imageViewEdited.getFitHeight(), imageViewEdited.getFitWidth() / aspectRatio);
-        edImagePane.resize(400, 400);
-        edImagePane.setLayoutX(0);
-        edImagePane.setLayoutY(0);
 
         Collection col = (rootMap.values());
         int cc = 0;
@@ -213,7 +278,7 @@ public class HomeController implements Initializable {
                 Rectangle rectangle = new Rectangle(xRoot, yRoot, cellWidth, cellHeight);
                 totalCellSize = totalCellSize + (cellHeight * cellWidth);
                 rectangle.setFill(Color.TRANSPARENT);
-                if (cellHeight * cellWidth > (aCellSize * 2) && color != RED) {
+                if (cellHeight * cellWidth > (aCellSize * 2) && color != Color.RED) {
                     rectangle.setStroke(Color.BLUE);
                 } else rectangle.setStroke(color);
                 index++;
@@ -222,14 +287,24 @@ public class HomeController implements Initializable {
                 label.setLayoutY(yRoot + cellHeight - 15);
                 label.setStyle("-fx-font-weight: bold");
                 label.setText(String.valueOf(index));
-                edImagePane.getChildren().add(label);
-                edImagePane.getChildren().add(rectangle);
+                pane.getChildren().add(label);
+                pane.getChildren().add(rectangle);
             }
         });
         cellCount = 0;
     }
 
-    public int countInCluster() {
+    public void numberRectangles(int xroot, int yroot, int cellWidth,)  {
+
+        Label label = new Label();
+        label.setLayoutX(xRoot + cellWidth - 18);
+        label.setLayoutY(yRoot + cellHeight - 15);
+        label.setStyle("-fx-font-weight: bold");
+        label.setText(String.valueOf(index));
+        pane.getChildren().add(label);
+    }
+
+    public void countInCluster() {
         int temp = 0, avg = 0, count = 0, inCluster = 0;
         for (Node node : edImagePane.getChildren()
         )
@@ -243,35 +318,14 @@ public class HomeController implements Initializable {
             if (node instanceof Rectangle && count > 0) {
                 System.out.println("avg size cell: " + temp / count);
                 avg = temp / count;
-                inCluster = (int) ((((((Rectangle) node).getHeight() * ((Rectangle) node).getWidth())) / avg) *1.2);
-                if (((Rectangle) node).getStroke().equals(RED) || inCluster < 1) inCluster = 1;
+                inCluster = (int) ((((((Rectangle) node).getHeight() * ((Rectangle) node).getWidth())) / avg) * 1.2);
+                if (((Rectangle) node).getStroke().equals(Color.RED) || inCluster < 1) inCluster = 1;
                 Tooltip tooltip = new Tooltip("Estimated blood cells: " + inCluster);
                 Tooltip.install(node, tooltip);
             }
         }
-        return avg;
     }
 
-    public int arrayFrequency(float[] fArr, float n) {
-        boolean visited[] = new boolean[fArr.length];
-        Arrays.fill(visited, false);
-
-        int count = 0;
-        for (int i = 0; i < fArr.length; i++) {
-
-            if (visited[i] == true)
-                continue;
-
-            for (int j = i + 1; j < fArr.length; j++) {
-                if (fArr[i] == fArr[j]) {
-                    visited[j] = true;
-                    count++;
-                }
-            }
-            System.out.println("frequency of " + n + ", ");
-        }
-        return count;
-    }
 
     public HashMap<Integer, Integer> arrayToHashMap(int[] arr) {
         HashMap<Integer, Integer> cellMap = new HashMap<>();
@@ -289,13 +343,15 @@ public class HomeController implements Initializable {
     }
 
     public WritableImage colorNoiseWhite(HashMap<Integer, Integer> hMap, HashMap<Integer, Integer> hMap2, int[] arr, int[] arr2, int percentNoiseReduction) {
-        Image im = imageViewEdited.getImage();
+        Image im = imageViewEdited1.getImage();
         PixelReader pr = im.getPixelReader();
         WritableImage writableImage;
         writableImage = (WritableImage) im;
         PixelWriter pixelWriter = writableImage.getPixelWriter();
         unionQuick(arr);
+        unionQuick(redCellArray);
         unionQuick(arr2);
+        unionQuick(whiteCellArray);
 
         for (int y = 0; y < im.getHeight(); y++) {
             for (int x = 0; x < im.getWidth(); x++) {
@@ -307,7 +363,8 @@ public class HomeController implements Initializable {
                 }
             }
         }
-
+        unionQuick(redCellArray);
+        unionQuick(whiteCellArray);
         return writableImage;
     }
 
@@ -318,68 +375,71 @@ public class HomeController implements Initializable {
             redCellMap = arrayToHashMap(redCellArray);
             int noisePercent = (int) noiseSlider.getValue();
             WritableImage wrIm = colorNoiseWhite(redCellMap, whiteCellMap, redCellArray, whiteCellArray, noisePercent);
-            imageViewEdited.setImage(wrIm);
+            imageViewEdited1.setImage(wrIm);
+            triColCon.triColorImageView.setImage(wrIm);
         });
     }
 
-
-    public void displayTricolor() {
-
-    }
 
     public void setTricolor() {
         tricolorBtn.setOnAction(e -> {
-            Image im = imageViewEdited.getImage();
-            //reading color from loaded image
-            PixelReader pixelReader = im.getPixelReader();
-            WritableImage writableImage = new WritableImage(
-                    (int) im.getWidth(), (int) im.getHeight());
-            PixelWriter pixelWriter = writableImage.getPixelWriter();
-            double aspectRatio = im.getWidth() / im.getHeight();
-            double width = Math.min(imageViewEdited.getFitWidth(), imageViewEdited.getFitHeight() * aspectRatio);
-            double height = Math.min(imageViewEdited.getFitHeight(), imageViewEdited.getFitWidth() / aspectRatio);
-            redCellArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
-            System.out.println("redcellArray: " + redCellArray.length);
-            whiteCellArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
-            System.out.println("WhitecellArray: " + whiteCellArray.length);
-            int whitePixel = -1;
-
-            for (int y = 0; y < im.getHeight(); y++) {
-                for (int x = 0; x < im.getWidth(); x++) {
-                    Color color = pixelReader.getColor(x, y);
-                    double r = color.getRed() * 255;
-                    double g = color.getGreen() * 255;
-                    double b = color.getBlue() * 255;
-                    //finding a red cell and making it bright red
-                    if (r > 80 && (r - b) > 20 && r > g && r > b) {
-                        r = 200;
-                        g = 10;
-                        b = 10;
-                        redCellArray[(y * (int) im.getWidth()) + x] = (y * (int) im.getWidth()) + x;
-                        whiteCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
-                    }
-                    //setting purple 'white blood cells' nuclei
-                    else if (Math.min(r, b - 12) - g > 35) {// && b > g && b > r) {
-                        b = 160;
-                        r = 140;
-                        g = 75;
-                        redCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
-                        whiteCellArray[(y * (int) im.getWidth()) + x] = (y * (int) im.getWidth()) + x;
-                    }
-                    //setting white background pixels
-                    else {
-                        b = r = g = 255;
-                        redCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
-                        whiteCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
-                    }
-                    Color c3 = Color.rgb((int) r, (int) g, (int) b);
-                    pixelWriter.setColor(x, y, c3);
-
-                }
-            }
-            imageViewEdited.setImage(writableImage);
-            System.out.println("array : " + redCellArray.length);
+            displayTricolor();
         });
+    }
+
+    public void displayTricolor() {
+        Image im = imageView.getImage();
+        //reading color from loaded image
+        PixelReader pixelReader = im.getPixelReader();
+        WritableImage writableImage = new WritableImage(
+                (int) im.getWidth(), (int) im.getHeight());
+        PixelWriter pixelWriter = writableImage.getPixelWriter();
+        double aspectRatio = im.getWidth() / im.getHeight();
+        double width = Math.min(imageViewEdited.getFitWidth(), imageViewEdited.getFitHeight() * aspectRatio);
+        double height = Math.min(imageViewEdited.getFitHeight(), imageViewEdited.getFitWidth() / aspectRatio);
+        redCellArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
+        System.out.println("redcellArray: " + redCellArray.length);
+        whiteCellArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
+        System.out.println("WhitecellArray: " + whiteCellArray.length);
+        int whitePixel = -1;
+
+        for (int y = 0; y < im.getHeight(); y++) {
+            for (int x = 0; x < im.getWidth(); x++) {
+                Color color = pixelReader.getColor(x, y);
+                double r = color.getRed() * 255;
+                double g = color.getGreen() * 255;
+                double b = color.getBlue() * 255;
+                //finding a red cell and making it bright red
+                if (r > 80 && (r - b) > 20 && r > g && r > b) {
+                    r = 200;
+                    g = 10;
+                    b = 10;
+                    redCellArray[(y * (int) im.getWidth()) + x] = (y * (int) im.getWidth()) + x;
+                    whiteCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
+                }
+                //setting purple 'white blood cells' nuclei
+                else if (Math.min(r, b - 12) - g > 35) {// && b > g && b > r) {
+                    b = 160;
+                    r = 140;
+                    g = 75;
+                    redCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
+                    whiteCellArray[(y * (int) im.getWidth()) + x] = (y * (int) im.getWidth()) + x;
+                }
+                //setting white background pixels
+                else {
+                    b = r = g = 255;
+                    redCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
+                    whiteCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
+                }
+                Color c3 = Color.rgb((int) r, (int) g, (int) b);
+                pixelWriter.setColor(x, y, c3);
+
+            }
+        }
+//        imageViewEdited.setImage(writableImage);
+        triColCon.triColorImageView.setImage(writableImage);
+        imageViewEdited1.setImage(writableImage);
+        System.out.println("array : " + redCellArray.length);
     }
 
 
@@ -408,14 +468,20 @@ public class HomeController implements Initializable {
     }
 
     public void setCancelChanges() {
+        Image freshImage = imageView.getImage();
+        imageViewEdited.setImage(null);
+        imageViewEdited.setImage(freshImage);
+        imageViewEdited1.setImage(null);
+        imageViewEdited1.setImage(freshImage);
+        edImagePane.getChildren().clear();
+        edImagePane1.getChildren().clear();
+        index = 0;
+        cellCount = 0;
+    }
+
+    public void cancelChanges() {
         cancelChanges.setOnAction(e -> {
-            Image freshImage = imageView.getImage();
-            imageViewEdited.setImage(null);
-            imageViewEdited.setImage(freshImage);
-            imageViewEdited.setEffect(colorAdjust);
-            edImagePane.getChildren().clear();
-            index = 0;
-            cellCount = 0;
+            setCancelChanges();
         });
     }
 

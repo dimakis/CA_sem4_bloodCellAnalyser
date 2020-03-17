@@ -2,6 +2,7 @@ package Main;
 
 
 import Controller.HomeController;
+import Controller.TriColorController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,7 +14,8 @@ public class Main extends Application {
 
     public static Stage pStage, sStage;
     public static HomeController homeCon;
-    public static Scene homeScene;
+    public static TriColorController triColCon;
+    public static Scene homeScene, triColorScene;
 
     @Override
     public void start(Stage pStage) throws Exception{
@@ -27,6 +29,10 @@ public class Main extends Application {
         pStage.show();
 
         sStage = new Stage();
+        FXMLLoader triColorCon = new FXMLLoader(getClass().getResource("../fxml/triColorScene.fxml"));
+        Parent triPar = triColorCon.load();
+        triColCon = triColorCon.getController();
+        triColorScene = new Scene(triPar);
     }
 
 
