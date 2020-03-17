@@ -48,11 +48,10 @@
                                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="594.0" minWidth="10.0" prefWidth="195.0" />
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="813.0" minWidth="10.0" prefWidth="205.0" />
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="813.0" minWidth="10.0" prefWidth="36.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="813.0" minWidth="10.0" prefWidth="190.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="813.0" minWidth="10.0" prefWidth="221.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="813.0" minWidth="10.0" prefWidth="28.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="813.0" minWidth="10.0" prefWidth="169.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="813.0" minWidth="10.0" prefWidth="237.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="813.0" minWidth="10.0" prefWidth="381.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="813.0" minWidth="0.0" prefWidth="44.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="813.0" minWidth="10.0" prefWidth="412.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="813.0" minWidth="0.0" prefWidth="0.0" />
                             </columnConstraints>
                             <rowConstraints>
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -62,19 +61,12 @@
                             <children>
                                 <Button fx:id="grayScaleBtn" layoutX="10.0" layoutY="12.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="254.0" text="Gray Scale" GridPane.rowIndex="2" />
                                 <Button fx:id="cancelChanges" layoutX="10.0" layoutY="12.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="241.0" text="Cancel Changes" />
-                        <Button fx:id="recTriColor" mnemonicParsing="false" text="Rectangle-a-fy TriColor" GridPane.columnIndex="6" />
-                        <Button fx:id="squareBloodCellsBtn" mnemonicParsing="false" prefHeight="26.0" prefWidth="205.0" text="Square BloodCells" GridPane.columnIndex="4" />
+                        <Button fx:id="recTriColor" mnemonicParsing="false" prefHeight="26.0" prefWidth="381.0" text="Rectangle-a-fy TriColor" GridPane.columnIndex="5" />
                       <Button fx:id="unionFindBtn" mnemonicParsing="false" prefHeight="26.0" prefWidth="248.0" text="Union Find" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <Button fx:id="tricolorBtn" mnemonicParsing="false" prefHeight="26.0" prefWidth="221.0" text="Tri-color Conversion" GridPane.columnIndex="1" />
-                        <Button fx:id="rectangleBtn" mnemonicParsing="false" prefHeight="26.0" prefWidth="217.0" text="Rectangle-a-fy" GridPane.columnIndex="3" />
+                        <Button fx:id="rectangleBtn" mnemonicParsing="false" prefHeight="26.0" prefWidth="370.0" text="Rectangle-a-fy" GridPane.columnIndex="3" />
                         <Button fx:id="imageSizeReduction" mnemonicParsing="false" prefHeight="26.0" prefWidth="251.0" text="Image Size Reduction" GridPane.rowIndex="1" />
                         <Button fx:id="countCellsBtn" mnemonicParsing="false" prefHeight="26.0" prefWidth="252.0" text="Count Cells" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Label fx:id="cellCountDisplayLbl" GridPane.columnIndex="3" GridPane.rowIndex="2">
-                           <font>
-                              <Font size="15.0" />
-                           </font>
-                        </Label>
-                        <Button fx:id="squareBloodCellsBtn1" layoutX="624.0" layoutY="13.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="205.0" text="Square BloodCells" GridPane.columnIndex="7" />
                             </children>
                         </GridPane>
                         <GridPane layoutX="21.0" layoutY="607.0" prefHeight="29.0" prefWidth="1233.0">
@@ -91,7 +83,7 @@
                         <Button fx:id="noiseBtn" mnemonicParsing="false" prefHeight="26.0" prefWidth="197.0" text="Cancel Noise" GridPane.columnIndex="1" />
                             </children>
                         </GridPane>
-                        <Label layoutX="607.0" layoutY="6.0" text="Edited Image" />
+                        <Label layoutX="594.0" layoutY="6.0" text="Edited Image" />
                   <Label fx:id="metaData" layoutX="20.0" layoutY="659.0" text="File MetaData" />
                   <Pane fx:id="ogImagePane2" layoutX="20.0" layoutY="30.0" prefHeight="400.0" prefWidth="400.0">
                      <children>
@@ -116,6 +108,11 @@
                   </Pane>
                   <Label layoutX="1012.0" layoutY="6.0" text="TriColor Image" />
                   <ButtonBar layoutX="-32.0" layoutY="432.0" prefHeight="30.0" prefWidth="712.0" />
+                  <Label fx:id="cellCountDisplayLbl" layoutX="219.0" layoutY="588.0" prefHeight="19.0" prefWidth="598.0">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Label>
                     </children>
                 </Pane>
             </children>
