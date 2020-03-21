@@ -24,20 +24,15 @@ import static Main.Main.*;
 public class HomeController implements Initializable {
 
     public MenuItem openFinder, openTricolor, quit;
-    public ImageView imageView, imageViewEdited;
-    public Button grayScaleBtn, cancelChanges, imageSizeReduction, unionFindBtn, squareBloodCellsBtn, noiseBtn, rectangleBtn, tricolorBtn, countCellsBtn;
-    public Label metaData;
+    public ImageView imageView, imageViewEdited, imageViewEdited1;
+    public Button grayScaleBtn, cancelChanges, imageSizeReduction, unionFindBtn,  noiseBtn, rectangleBtn, tricolorBtn, countCellsBtn, recTriColor;
+    public Label metaData,cellCountDisplayLbl;
     public double fileSize;
     public Slider noiseSlider;
     public int[] redCellArray, whiteCellArray;
     public HashMap<Integer, Integer> redCellMap, whiteCellMap;
-    public Pane ogImagePane, edImagePane, edImagePane2, ogImagePane2;
+    public Pane ogImagePane, edImagePane, edImagePane2, ogImagePane2,edImagePane1;
     public int totalCellSize = 0, index = 0, cellCount = 0;
-    public ImageView imageViewEdited1;
-    public Pane edImagePane1;
-    public Button recTriColor;
-    public Label cellCountDisplayLbl;
-
     public boolean alreadyDrawn = false, alreadyDrawn2 = false, cellsCounted = false;
 
     @Override
@@ -455,6 +450,7 @@ public class HomeController implements Initializable {
         edImagePane.getChildren().clear();
         edImagePane1.getChildren().clear();
         cellCountDisplayLbl.setText("");
+        cellsCounted = false;
         index = 0;
         cellCount = 0;
     }
