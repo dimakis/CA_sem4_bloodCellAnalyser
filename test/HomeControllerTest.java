@@ -1,9 +1,14 @@
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.HashMap;
 
 class HomeControllerTest {
 
+    public int[] arr;
+    public HashMap<Integer,Integer> hmap;
+
+
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
+
     }
 
     @org.junit.jupiter.api.AfterEach
@@ -29,4 +34,6 @@ class HomeControllerTest {
     @org.junit.jupiter.api.Test
     void arrayToHashMap() {
     }
+
+
 }
