@@ -77,22 +77,39 @@ public class HomeController implements Initializable {
 
     public void setTricolor() {
         tricolorBtn.setOnAction(e -> {
-            displayTricolor();
+            Image im = imageView.getImage();
+            try {
+                if (redCellArray.equals(null) && whiteCellArray.equals(null)) {
+                    redCellArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
+                    whiteCellArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
+                }
+                displayWritableImage();
+            } catch (Exception e1) {
+                redCellArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
+                whiteCellArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
+                displayWritableImage();
+            }
         });
     }
 
-    public void displayTricolor() {
-        Image im = imageView.getImage();
+//    public int sliderValue(Slider slider)    {
+//
+//    }
+
+    public WritableImage displayTricolor(Image im, int[] redCellArr, int[] whiteCellArr, int redAmount, int purpleAmount) {
+//        Image im = imageView.getImage();
         //reading color from loaded image
         PixelReader pixelReader = im.getPixelReader();
         WritableImage writableImage = new WritableImage(
                 (int) im.getWidth(), (int) im.getHeight());
         PixelWriter pixelWriter = writableImage.getPixelWriter();
         double aspectRatio = im.getWidth() / im.getHeight();
-        int redAmount = (int) redSlider.getValue();
-        int purpleAmount = (int) purpleSlider.getValue();
-        redCellArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
-        whiteCellArray = new int[(int) (im.getWidth() * (int) im.getHeight())];
+//        int redAmount = (int) redSlider.getValue();
+//        int purpleAmount = (int) purpleSlider.getValue();
+        if (redCellArr.equals(null) && whiteCellArr.equals(null)) {
+            redCellArr = new int[(int) (im.getWidth() * (int) im.getHeight())];
+            whiteCellArr = new int[(int) (im.getWidth() * (int) im.getHeight())];
+        }
         int whitePixel = -1;
 
         for (int y = 0; y < im.getHeight(); y++) {
@@ -106,38 +123,37 @@ public class HomeController implements Initializable {
                     r = 200;
                     g = 10;
                     b = 10;
-                    redCellArray[(y * (int) im.getWidth()) + x] = (y * (int) im.getWidth()) + x;
-                    whiteCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
+                    redCellArr[(y * (int) im.getWidth()) + x] = (y * (int) im.getWidth()) + x;
+                    whiteCellArr[(y * (int) im.getWidth()) + x] = whitePixel;
                 }
                 //setting purple 'white blood cells' nuclei
                 else if (Math.min(r, b - 12) - g > purpleAmount) {// && b > g && b > r) {
                     b = 160;
                     r = 140;
                     g = 75;
-                    redCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
-                    whiteCellArray[(y * (int) im.getWidth()) + x] = (y * (int) im.getWidth()) + x;
+                    redCellArr[(y * (int) im.getWidth()) + x] = whitePixel;
+                    whiteCellArr[(y * (int) im.getWidth()) + x] = (y * (int) im.getWidth()) + x;
                 }
                 //setting white background pixels
                 else {
                     b = r = g = 255;
-                    redCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
-                    whiteCellArray[(y * (int) im.getWidth()) + x] = whitePixel;
+                    redCellArr[(y * (int) im.getWidth()) + x] = whitePixel;
+                    whiteCellArr[(y * (int) im.getWidth()) + x] = whitePixel;
                 }
                 Color c3 = Color.rgb((int) r, (int) g, (int) b);
                 pixelWriter.setColor(x, y, c3);
 
             }
         }
-        triColCon.triColorImageView.setImage(writableImage);
-        imageViewEdited1.setImage(writableImage);
-        unionQuick(redCellArray);
-        unionQuick(whiteCellArray);
+//        unionQuick(redCellArr);
+//        unionQuick(whiteCellArr);
+        return writableImage;
     }
 
     // unions disjoint sets from an inputted array based on the root of cell
-    public void unionQuick(int[] arr) {
+    public void unionQuick(int[] arr, Image im) {
         if (arr.length > 0) {
-            Image im = imageViewEdited.getImage();
+//            Image im = imageViewEdited.getImage();
             int width = (int) im.getWidth();
             for (int id = 0; id < arr.length - 1; id++) {
                 //union for non white pixels
@@ -253,7 +269,6 @@ public class HomeController implements Initializable {
     }
 
 
-
     // adds labels of numbering to pane
     public void numberRectangles(int xroot, int yroot, int cellWidth, int cellHeight, Pane pane) {
         Label label = new Label();
@@ -284,8 +299,11 @@ public class HomeController implements Initializable {
         }
     }
 
-    // method takes in a hash map representing pixels, if pixel is not white and if pixel value is currently unique, a key is added(of that pixel value)
-    // subsequently if the pixel value is not unique the value is incremented. the value is the total size, or amount of pixels in the cell.
+    // method takes in an array representing pixels,
+    // if pixel is not white and if pixel value is currently unique, a key is added(of that pixel value)
+    // to a newly created hash map.
+    // subsequently if the pixel value is not unique the value is incremented.
+    // the value is the total size, or amount of pixels in the cell.
     public HashMap<Integer, Integer> arrayToHashMap(int[] arr) {
         HashMap<Integer, Integer> cellMap = new HashMap<>();
         for (int i = 0; i < arr.length - 1; i++) {
@@ -306,10 +324,10 @@ public class HomeController implements Initializable {
         WritableImage writableImage;
         writableImage = (WritableImage) im;
         PixelWriter pixelWriter = writableImage.getPixelWriter();
-        unionQuick(arr);
-        unionQuick(redCellArray);
-        unionQuick(arr2);
-        unionQuick(whiteCellArray);
+        unionQuick(arr, imageViewEdited.getImage());
+        unionQuick(redCellArray, imageViewEdited.getImage());
+        unionQuick(arr2, imageViewEdited.getImage());
+        unionQuick(whiteCellArray, imageViewEdited.getImage());
 
         // go through array checking if current the root of current pixel is present in the hashmap of cells, it isn't white and the total amount of
         // pixels(size of the bloodcell) is less than the amount user would like to clear. Once a pixel meet these criteria it is colored white.
@@ -323,14 +341,14 @@ public class HomeController implements Initializable {
                 }
             }
         }
-        unionQuick(redCellArray);
-        unionQuick(whiteCellArray);
+        unionQuick(redCellArray, imageViewEdited.getImage());
+        unionQuick(whiteCellArray, imageViewEdited.getImage());
         return writableImage;
     }
 
     public void reduceNoise() {
-        unionQuick(whiteCellArray);
-        unionQuick(redCellArray);
+        unionQuick(whiteCellArray, imageViewEdited.getImage());
+        unionQuick(redCellArray, imageViewEdited.getImage());
         whiteCellMap = arrayToHashMap(whiteCellArray);
         redCellMap = arrayToHashMap(redCellArray);
         int noisePercent = (int) noiseSlider.getValue();
@@ -386,6 +404,7 @@ public class HomeController implements Initializable {
             setCancelChanges();
         });
     }
+
     public void setTriColorScene() {
         openTricolor.setOnAction(e -> {
             sStage.setScene(Main.triColorScene);
@@ -401,11 +420,13 @@ public class HomeController implements Initializable {
 
     public void setImageSizeReduction() {
         imageSizeReduction.setOnAction(e -> {
-            Image im = imageViewEdited.getImage();
-            im = new Image(im.getUrl(), 144, 144, false, false);
-
-            imageViewEdited.setImage(im);
+            Image newIm = reduceIm(imageViewEdited.getImage());
+            imageViewEdited.setImage(newIm);
         });
+    }
+
+    public Image reduceIm(Image im) {
+        return new Image(im.getUrl(), 144, 144, false, false);
     }
 
     public void noiseReduction() {
@@ -416,11 +437,12 @@ public class HomeController implements Initializable {
 
     public void setUnionFindBtn() {
         unionFindBtn.setOnAction(e -> {
-            unionQuick(redCellArray);
+            unionQuick(redCellArray, imageViewEdited.getImage());
             System.out.println();
-            unionQuick(whiteCellArray);
+            unionQuick(whiteCellArray, imageViewEdited.getImage());
         });
     }
+
     public void numberRecsTricolorPane() {
         numberCells.setOnAction(e -> {
             if (!cellsSeqCount)
@@ -442,6 +464,7 @@ public class HomeController implements Initializable {
             }
         });
     }
+
     public void setCountCellsBtn() {
         countCellsBtn.setOnAction(e -> {
             try {
@@ -477,11 +500,17 @@ public class HomeController implements Initializable {
             try {
                 rectangle_a_fy(edImagePane1, alreadyDrawn);
             } catch (Exception e1) {
-                displayTricolor();
+                displayWritableImage();
                 reduceNoise();
                 rectangle_a_fy(edImagePane1, alreadyDrawn);
             }
         });
+    }
+
+    public void displayWritableImage() {
+        WritableImage writableImage = displayTricolor(imageView.getImage(), redCellArray, whiteCellArray, (int) redSlider.getValue(), (int) purpleSlider.getValue());
+        triColCon.triColorImageView.setImage(writableImage);
+        imageViewEdited1.setImage(writableImage);
     }
 
     public void setDrawRectangle() {
@@ -489,7 +518,7 @@ public class HomeController implements Initializable {
             try {
                 rectangle_a_fy(edImagePane, alreadyDrawn2);
             } catch (Exception e1) {
-                displayTricolor();
+                displayWritableImage();
                 reduceNoise();
                 rectangle_a_fy(edImagePane, alreadyDrawn2);
             }
